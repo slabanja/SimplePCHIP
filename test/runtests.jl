@@ -5,7 +5,7 @@ reload("SimplePCHIP")
 s = SimplePCHIP
 
 
-function test_interpolation_is_piecewise_monotone(xs, ys, N=100)
+function test_interpolation_is_piecewise_monotone(xs, ys, N=10000)
     pchip = s.create_pchip(xs, ys)
     for (i,j) in monotone_intervals(ys)
         @test is_monotone(s.interp(pchip,
@@ -66,7 +66,7 @@ test_interpolation_is_piecewise_monotone(xs, ys)
 
 xs = [   0.0 10.0 10000.0]
 ys = [-100.0  1.2     1.1]
-test_interpolation_is_piecewise_monotone(xs, ys, N=10000)
+test_interpolation_is_piecewise_monotone(xs, ys)
 
 
 # Example data from Fritsch and Carlson, SIAM J. NUMER. ANAL. 17 (1980) 238-246.
