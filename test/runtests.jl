@@ -1,7 +1,6 @@
 import SimplePCHIP
 using Base.Test
 
-reload("SimplePCHIP")
 s = SimplePCHIP
 
 
