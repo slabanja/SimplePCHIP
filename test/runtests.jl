@@ -40,7 +40,7 @@ function is_monotone(zs)
 end
 
 function is_approx_le(a, b)
-    a < b || isapprox(a, b, atol=eps())
+    a < b || a ≈ b
 end
 
 xs = [0.0 1.0]
