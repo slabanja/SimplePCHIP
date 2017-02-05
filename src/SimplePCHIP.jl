@@ -128,5 +128,4 @@ function assert_monotonic_increase(xs)
     foldl((a,b) -> (assert(a < b); b), xs)
 end
 
-
 end  # module
