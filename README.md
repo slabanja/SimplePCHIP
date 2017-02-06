@@ -6,9 +6,9 @@
 
 
 
-[travis-img]: https://travis-ci.org/SimplePCHIP/CSV.jl.svg?branch=master
-[travis-url]: https://travis-ci.org/SimplePCHIP/CSV.jl
+[travis-img]: https://travis-ci.org/SimplePCHIP/SimplePCHIP.svg?branch=master
+[travis-url]: https://travis-ci.org/SimplePCHIP/SimplePCHIP
 
 
-[codecov-img]: https://codecov.io/gh/SimplePCHIP/CSV.jl/branch/master/graph/badge.svg
-[codecov-url]: https://codecov.io/gh/SimplePCHIP/CSV.jl
+[codecov-img]: https://codecov.io/gh/SimplePCHIP/SimplePCHIP/branch/master/graph/badge.svg
+[codecov-url]: https://codecov.io/gh/SimplePCHIP/SimplePCHIP
