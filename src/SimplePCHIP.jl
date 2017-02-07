@@ -32,6 +32,14 @@ function _interp(pchip, x :: Number)
      + d2*h * ψ((x-x1)/h))
 end
 
+function _pchip_index(pchip, x)
+    if pchip.N < 200  # Approximate performance cross-over on my old intel i7-3517U
+        _pchip_index_linear_search(pchip, x)
+    else
+        _pchip_index_bisectional_search(pchip, x)
+    end
+end
+
 function _pchip_index_linear_search(pchip, x)
     xmin = pchip.xs[1]
     assert(x >= xmin)
@@ -47,24 +55,24 @@ end
 
 function _pchip_index_bisectional_search(pchip, x)
     N = pchip.N
-    xmin = pchip.xs[1]
-    xmax = pchip.xs[N]
+    imin, imax = 1, N
+    xmin = pchip.xs[imin]
+    xmax = pchip.xs[imax]
     assert(x >= xmin && x <= xmax)
 
-    N = pchip.N
-    i = div(N+1, 2)
-
-    while x < pchip.xs[i]  ||  x >= pchip.xs[i+1]
+    i = 0
+    while imin < imax
+        i = imin + div(imax - imin + 1, 2)
         if x < pchip.xs[i]
-            i = div(i+1, 2)
+            imax = i - 1
         elseif x > pchip.xs[i+1]
-            i = i + div(N-i+1, 2)
+            imin = i + 1
+        else
+            break
         end
     end
     i
 end
-
-_pchip_index = _pchip_index_linear_search
 
 
 "Similar to how SciPy's PCHIP does it"

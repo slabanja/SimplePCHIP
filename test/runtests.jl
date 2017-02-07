@@ -67,6 +67,9 @@ xs = [   0.0 10.0 10000.0]
 ys = [-100.0  1.2     1.1]
 test_interpolation_is_piecewise_monotone(xs, ys)
 
+# xs = linspace(0, 2π, 5000)
+# ys = sin(xs)
+# test_interpolation_is_piecewise_monotone(xs, ys)
 
 # Example data from Fritsch and Carlson, SIAM J. NUMER. ANAL. 17 (1980) 238-246.
 xs = [ 0.0  2  3  5  6  8  9   11 12 14 15]
