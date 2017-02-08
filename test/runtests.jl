@@ -3,10 +3,14 @@ using Base.Test
 
 s = SimplePCHIP
 
+using PyCall
+@pyimport scipy.interpolate as scipy_interp
 
 function test_interpolation_is_piecewise_monotone(xs, ys, N=10000)
     pchip = s.create_pchip(xs, ys)
+    interp = scipy_interp.PchipInterpolator(xs[:], ys[:])
     for (i,j) in monotone_intervals(ys)
+        # @test is_monotone(interp(linspace(xs[i], xs[j], N)))
         @test is_monotone(s.interp(pchip,
                                    linspace(xs[i], xs[j], N)))
     end
@@ -67,9 +71,9 @@ xs = [   0.0 10.0 10000.0]
 ys = [-100.0  1.2     1.1]
 test_interpolation_is_piecewise_monotone(xs, ys)
 
-# xs = linspace(0, 2π, 5000)
-# ys = sin(xs)
-# test_interpolation_is_piecewise_monotone(xs, ys)
+xs = linspace(0, 2π, 5000)
+ys = sin(xs)
+test_interpolation_is_piecewise_monotone(xs, ys)
 
 # Example data from Fritsch and Carlson, SIAM J. NUMER. ANAL. 17 (1980) 238-246.
 xs = [ 0.0  2  3  5  6  8  9   11 12 14 15]
@@ -83,3 +87,18 @@ test_interpolation_is_piecewise_monotone(xs, ys)
 @test is_monotone([10.0 1.0 0.0])
 @test ! is_monotone([0.0 1.0 0.0])
 @test ! is_monotone([1.0 0.0 1.0])
+
+
+# Test internal functions
+
+# Make sure the correct interval is identified
+p = s.pchip(3, [1.0 2.0 3.0], [0.0 0.0 0.0], [0.0 0.0 0.0])
+for search ∈ (s._pchip_index_linear_search, s._pchip_index_bisectional_search)
+    @test search(p, 1.0) == 1
+    @test search(p, 1.0 + eps(1.0)) == 1
+    @test search(p, 2.0 - eps(2.0)) == 1
+    @test search(p, 2.0) == 2
+    @test search(p, 2.0 + eps(2.0)) == 2
+    @test search(p, 3.0 - eps(3.0)) == 2
+    @test search(p, 3.0) == 3
+end

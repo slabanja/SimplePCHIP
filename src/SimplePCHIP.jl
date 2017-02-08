@@ -33,11 +33,18 @@ function _interp(pchip, x :: Number)
 end
 
 function _pchip_index(pchip, x)
-    if pchip.N < 200  # Approximate performance cross-over on my old intel i7-3517U
-        _pchip_index_linear_search(pchip, x)
+    N = pchip.N
+    if N < 200  # Approximate performance cross-over on my old intel i7-3517U
+        i = _pchip_index_linear_search(pchip, x)
     else
-        _pchip_index_bisectional_search(pchip, x)
+        i = _pchip_index_bisectional_search(pchip, x)
     end
+    if i == N
+        # Treat right endpoint as part of rightmost interval
+        assert(x ≈ pchip.xs[N])
+        i = N-1
+    end
+    i
 end
 
 function _pchip_index_linear_search(pchip, x)
@@ -46,10 +53,9 @@ function _pchip_index_linear_search(pchip, x)
 
     i = 1
     N = pchip.N
-    while i < N  &&  x > pchip.xs[i+1]
+    while i < N  &&  x >= pchip.xs[i+1]
         i = i + 1
     end
-    assert(i < N || x == pchip.xs[N])
     i
 end
 
@@ -60,16 +66,16 @@ function _pchip_index_bisectional_search(pchip, x)
     xmax = pchip.xs[imax]
     assert(x >= xmin && x <= xmax)
 
-    i = 0
+    i = imin + div(imax - imin + 1, 2)
     while imin < imax
-        i = imin + div(imax - imin + 1, 2)
         if x < pchip.xs[i]
             imax = i - 1
-        elseif x > pchip.xs[i+1]
+        elseif x >= pchip.xs[i+1]
             imin = i + 1
         else
             break
         end
+        i = imin + div(imax - imin + 1, 2)
     end
     i
 end
@@ -90,7 +96,7 @@ function _initial_ds_scipy(xs, ys)
         for i ∈ 2:N-1
             Δr = Δ(i)
             hr = h(i)
-            if sign(Δl) != sign(Δr) || isapprox(Δl, 0.0, atol=eps()) || isapprox(Δr, 0.0, atol=eps())
+            if sign(Δl) != sign(Δr) || Δl ≈ 0.0 || Δr ≈ 0.0  # isapprox(Δl, 0.0, atol=eps()) || isapprox(Δr, 0.0, atol=eps())
                 ds[i] = 0.0
             else
                 wl = 2hl + hr
