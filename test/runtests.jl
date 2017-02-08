@@ -3,14 +3,9 @@ using Base.Test
 
 s = SimplePCHIP
 
-using PyCall
-@pyimport scipy.interpolate as scipy_interp
-
 function test_interpolation_is_piecewise_monotone(xs, ys, N=10000)
     pchip = s.create_pchip(xs, ys)
-    interp = scipy_interp.PchipInterpolator(xs[:], ys[:])
     for (i,j) in monotone_intervals(ys)
-        # @test is_monotone(interp(linspace(xs[i], xs[j], N)))
         @test is_monotone(s.interp(pchip,
                                    linspace(xs[i], xs[j], N)))
     end
