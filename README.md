@@ -32,6 +32,7 @@ plot(layer(x=xrange, y=yinterpolated, Geom.line),
      layer(x=xs, y=ys, Geom.point))
 ```
 
+![](https://cloud.githubusercontent.com/assets/154866/23104112/e94d7eda-f6c7-11e6-9108-888555ed8d6a.png)
 
 ## Why PCHIP?
 PCHIP interpolation preserves monotonicity.
