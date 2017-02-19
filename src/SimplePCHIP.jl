@@ -4,22 +4,20 @@ module SimplePCHIP
 # Derivative calculated in a fashion similar to SciPy's PchipInterpolate
 #
 
-immutable pchip
+export interpolate
+
+
+immutable _pchip
     N :: Integer
     xs :: Array{Float64}
     ys :: Array{Float64}
     ds :: Array{Float64}
 end
 
-
-function interp(pchip, xs)
-    [_interp(pchip, x) for x ∈ xs]
-end
-
 ϕ(t) = 3t^2 - 2t^3
 ψ(t) = t^3 - t^2
 
-function _interp(pchip, x :: Number)
+function _interp(pchip :: _pchip, x :: Number)
     i = _pchip_index(pchip, x)
     x1, x2 = pchip.xs[i:i+1]
     y1, y2 = pchip.ys[i:i+1]
@@ -32,7 +30,7 @@ function _interp(pchip, x :: Number)
      + d2*h * ψ((x-x1)/h))
 end
 
-function _pchip_index(pchip, x)
+function _pchip_index(pchip :: _pchip, x)
     N = pchip.N
     if N < 200  # Approximate performance cross-over on my old intel i7-3517U
         i = _pchip_index_linear_search(pchip, x)
@@ -47,7 +45,7 @@ function _pchip_index(pchip, x)
     i
 end
 
-function _pchip_index_linear_search(pchip, x)
+function _pchip_index_linear_search(pchip :: _pchip, x)
     xmin = pchip.xs[1]
     assert(x >= xmin)
 
@@ -59,7 +57,7 @@ function _pchip_index_linear_search(pchip, x)
     i
 end
 
-function _pchip_index_bisectional_search(pchip, x)
+function _pchip_index_bisectional_search(pchip :: _pchip, x)
     N = pchip.N
     imin, imax = 1, N
     xmin = pchip.xs[imin]
@@ -96,7 +94,7 @@ function _initial_ds_scipy(xs, ys)
         for i ∈ 2:N-1
             Δr = Δ(i)
             hr = h(i)
-            if sign(Δl) != sign(Δr) || Δl ≈ 0.0 || Δr ≈ 0.0  # isapprox(Δl, 0.0, atol=eps()) || isapprox(Δr, 0.0, atol=eps())
+            if sign(Δl) != sign(Δr) || Δl ≈ 0.0 || Δr ≈ 0.0
                 ds[i] = 0.0
             else
                 wl = 2hl + hr
@@ -122,13 +120,14 @@ function _edge_derivative(h1, h2, Δ1, Δ2)
     d
 end
 
-
-function create_pchip(xs, ys)
+function interpolate(xs, ys)
     xs_ = [x for x ∈ xs]
-    ys_ = [x for x ∈ ys]
+    ys_ = [y for y ∈ ys]
     _assert_xs_ys(xs_, ys_)
     ds = _initial_ds_scipy(xs_, ys_)
-    pchip(length(xs_), xs_, ys_, ds)
+    pchip = _pchip(length(xs_), xs_, ys_, ds)
+    
+    x -> _interp(pchip, x)
 end
 
 function _assert_xs_ys(xs, ys)

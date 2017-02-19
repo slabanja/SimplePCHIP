@@ -1,13 +1,11 @@
-import SimplePCHIP
+using SimplePCHIP   # WIll bring interpolate into namespace
 using Base.Test
 
-s = SimplePCHIP
 
 function test_interpolation_is_piecewise_monotone(xs, ys, N=10000)
-    pchip = s.create_pchip(xs, ys)
+    itp = interpolate(xs, ys)
     for (i,j) in monotone_intervals(ys)
-        @test is_monotone(s.interp(pchip,
-                                   linspace(xs[i], xs[j], N)))
+        @test is_monotone([itp(x) for x ∈ linspace(xs[i], xs[j], N)])
     end
 end
 
@@ -87,8 +85,8 @@ test_interpolation_is_piecewise_monotone(xs, ys)
 # Test internal functions
 
 # Make sure the correct interval is identified
-p = s.pchip(3, [1.0 2.0 3.0], [0.0 0.0 0.0], [0.0 0.0 0.0])
-for search ∈ (s._pchip_index_linear_search, s._pchip_index_bisectional_search)
+p = SimplePCHIP._pchip(3, [1.0 2.0 3.0], [0.0 0.0 0.0], [0.0 0.0 0.0])
+for search ∈ (SimplePCHIP._pchip_index_linear_search, SimplePCHIP._pchip_index_bisectional_search)
     @test search(p, 1.0) == 1
     @test search(p, 1.0 + eps(1.0)) == 1
     @test search(p, 2.0 - eps(2.0)) == 1
