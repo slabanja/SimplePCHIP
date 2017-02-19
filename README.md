@@ -1,4 +1,3 @@
-# SimplePCHIP
 
 | **Build Status**                                              |
 |:-------------------------------------------------------------:|
@@ -10,6 +9,9 @@
 
 [codecov-img]: https://codecov.io/gh/slabanja/SimplePCHIP/branch/master/graph/badge.svg
 [codecov-url]: https://codecov.io/gh/slabanja/SimplePCHIP/
+
+
+# SimplePCHIP
 
 This package provide functionality to perform piecewise cubic hermite interpolating polynomial (PCHIP)
 interpolation of arbitrarily spaced 1-dimensional data.
@@ -33,6 +35,12 @@ plot(layer(x=xrange, y=yinterpolated, Geom.line),
 ```
 
 ![](https://cloud.githubusercontent.com/assets/154866/23104112/e94d7eda-f6c7-11e6-9108-888555ed8d6a.png)
+
+Zooming in around x=1.2 and x=10.0,
+
+![x=1.2](https://cloud.githubusercontent.com/assets/154866/23104705/51a5ea66-f6d3-11e6-816f-4f16057428d3.png)
+![x=10.0](https://cloud.githubusercontent.com/assets/154866/23104707/577107fa-f6d3-11e6-8832-c25b9a033ba3.png)
+
 
 ## Why PCHIP?
 PCHIP interpolation preserves monotonicity.
