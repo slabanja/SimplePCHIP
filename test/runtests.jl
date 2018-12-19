@@ -1,23 +1,23 @@
 using SimplePCHIP   # WIll bring interpolate into namespace
-using Base.Test
+using Test
 
 
 function test_interpolation_is_piecewise_monotone(xs, ys, N=10000)
     itp = interpolate(xs, ys)
     for (i,j) in monotone_intervals(ys)
-        @test is_monotone([itp(x) for x ∈ linspace(xs[i], xs[j], N)])
+        @test is_monotone([itp(x) for x ∈ range(xs[i], stop=xs[j], length=N)])
     end
 end
 
 function monotone_intervals(xs)
     N = length(xs)
-    function _monotone_intervals()
+    function _monotone_intervals(ch :: Channel)
         up_down = 0
         previous_i = 1
         for i = 1:N-1
             current_x, next_x = xs[i:i+1]
             if up_down != 0  &&  up_down*current_x > up_down*next_x
-                produce((previous_i, i))
+                put!(ch, (previous_i, i))
                 previous_i = i
                 up_down = 0
             end
@@ -25,10 +25,10 @@ function monotone_intervals(xs)
                 up_down = current_x < next_x ? 1 : -1
             end
         end
-        produce((previous_i, N))
+        put!(ch, (previous_i, N))
     end
 
-    [interval for interval in Task(_monotone_intervals)]
+    [interval for interval in Channel(_monotone_intervals)]
 end
 
 function is_monotone(zs)
@@ -64,9 +64,9 @@ xs = [   0.0 10.0 10000.0]
 ys = [-100.0  1.2     1.1]
 test_interpolation_is_piecewise_monotone(xs, ys)
 
-xs = linspace(0, 2π, 5000)
-ys = sin(xs)
-test_interpolation_is_piecewise_monotone(xs, ys)
+xs = range(0, stop=2π, length=5000)
+ys = sin.(xs)
+test_interpolation_is_piecewise_monotone(collect(xs), ys)
 
 # Example data from Fritsch and Carlson, SIAM J. NUMER. ANAL. 17 (1980) 238-246.
 xs = [ 0.0  2  3  5  6  8  9   11 12 14 15]

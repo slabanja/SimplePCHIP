@@ -7,7 +7,7 @@ module SimplePCHIP
 export interpolate
 
 
-immutable _pchip
+struct _pchip
     N :: Integer
     xs :: Array{Float64}
     ys :: Array{Float64}
@@ -39,7 +39,7 @@ function _pchip_index(pchip :: _pchip, x)
     end
     if i == N
         # Treat right endpoint as part of rightmost interval
-        assert(x ≈ pchip.xs[N])
+        @assert (x ≈ pchip.xs[N])
         i = N-1
     end
     i
@@ -47,7 +47,7 @@ end
 
 function _pchip_index_linear_search(pchip :: _pchip, x)
     xmin = pchip.xs[1]
-    assert(x >= xmin)
+    @assert (x >= xmin)
 
     i = 1
     N = pchip.N
@@ -62,7 +62,7 @@ function _pchip_index_bisectional_search(pchip :: _pchip, x)
     imin, imax = 1, N
     xmin = pchip.xs[imin]
     xmax = pchip.xs[imax]
-    assert(x >= xmin && x <= xmax)
+    @assert (x >= xmin && x <= xmax)
 
     i = imin + div(imax - imin + 1, 2)
     while imin < imax
@@ -87,7 +87,7 @@ function _initial_ds_scipy(xs, ys)
     N = length(xs)
     ds = similar(xs)
     if N == 2
-        ds[:] = Δ(1)
+        ds[:] .= Δ(1)
     else
         Δl = Δ(1)
         hl = h(1)
@@ -126,19 +126,19 @@ function interpolate(xs, ys)
     _assert_xs_ys(xs_, ys_)
     ds = _initial_ds_scipy(xs_, ys_)
     pchip = _pchip(length(xs_), xs_, ys_, ds)
-    
+
     x -> _interp(pchip, x)
 end
 
 function _assert_xs_ys(xs, ys)
     N = length(xs)
-    assert(N > 1)
-    assert(N == length(ys))
+    @assert (N > 1)
+    @assert (N == length(ys))
     assert_monotonic_increase(xs)
 end
 
 function assert_monotonic_increase(xs)
-    foldl((a,b) -> (assert(a < b); b), xs)
+    foldl((a,b) -> (@assert (a < b); b), xs)
 end
 
 end  # module
