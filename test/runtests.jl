@@ -95,3 +95,19 @@ for search ∈ (PCHIPInterpolation._pchip_index_linear_search, PCHIPInterpolatio
     @test search(p, 3.0 - eps(3.0)) == 2
     @test search(p, 3.0) == 3
 end
+
+# Test integration
+@test integrate(p, 1, 3) == 0
+@test integrate(p, 3, 1) == 0
+@test integrate(p, 1, 2) == 0
+@test integrate(p, 2, 3) == 0
+@test integrate(p, 1.25, 2) == 0
+@test integrate(p, 1, 2.25) == 0
+@test integrate(p, 1.25, 2.25) == 0
+
+p = Interpolator([1.0 2.0 3.0 4.0], [4.0 3.0 2.0 1.0])
+@test integrate(p, 1, 4) == 3*3/2 + 3
+@test integrate(p, 1, 2) + integrate(p, 2, 4) == integrate(p, 1, 4)
+@test integrate(p, 1, 2.75) + integrate(p, 2.75, 4) == integrate(p, 1, 4)
+@test integrate(p, 3, 1) == -integrate(p, 1, 3)
+

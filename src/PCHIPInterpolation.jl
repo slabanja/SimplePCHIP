@@ -4,7 +4,7 @@ module PCHIPInterpolation
 # Derivative calculated in a fashion similar to SciPy's PchipInterpolate
 #
 
-export Interpolator
+export Interpolator, integrate
 
 
 struct Interpolator{Xs,Ys,Ds}
@@ -36,6 +36,45 @@ function _value_with_index(pchip::Interpolator, x::Number, i)
 end
 
 (pchip::Interpolator)(x::Number) = _value_with_index(pchip, x, _pchip_index(pchip, x))
+
+function _integrate_segment(pchip::Interpolator, i, x1=nothing, x2=nothing)
+    if isnothing(x1)
+        x1 = pchip.xs[i]
+        y1 = pchip.ys[i]
+    else
+        y1 = _value_with_index(pchip, x1, i)
+    end
+
+    if isnothing(x2)
+        x2 = pchip.xs[i+1]
+        y2 = pchip.ys[i+1]
+    else
+        y2 = _value_with_index(pchip, x2, i)
+    end
+
+    return (x2 - x1)/6 * (y1 + 4*_value_with_index(pchip, (x1 + x2)/2, i) + y2)  # Simpson's rule
+end
+
+function integrate(pchip::Interpolator, a::Number, b::Number)
+    if b < a
+        return -integrate(pchip, b, a)
+    end
+
+    i = _pchip_index(pchip, a)
+    j = _pchip_index(pchip, b)
+
+    if i == j
+        return _integrate_segment(pchip, i, a, b)
+    end
+
+    integral = _integrate_segment(pchip, i, a, nothing) + _integrate_segment(pchip, j, nothing, b)
+
+    for k in range(i+1, stop=j-1)
+        integral += _integrate_segment(pchip, k)
+    end
+
+    return integral
+end
 
 function _pchip_index(pchip :: Interpolator, x)
     N = length(pchip.xs)
