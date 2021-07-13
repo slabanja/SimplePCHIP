@@ -7,17 +7,15 @@ module PCHIPInterpolation
 export Interpolator
 
 
-struct Interpolator
-    xs :: Array{Float64}
-    ys :: Array{Float64}
-    ds :: Array{Float64}
+struct Interpolator{Xs,Ys,Ds}
+    xs::Xs
+    ys::Ys
+    ds::Ds
 
-    function Interpolator(xs, ys)
-        xs_ = [x for x ∈ xs]
-        ys_ = [y for y ∈ ys]
-        _assert_xs_ys(xs_, ys_)
-        ds = _initial_ds_scipy(xs_, ys_)
-        new(xs_, ys_, ds)
+    function Interpolator(xs::AbstractArray, ys::AbstractArray)
+        _assert_xs_ys(xs, ys)
+        ds = _initial_ds_scipy(xs, ys)
+        new{typeof(xs),typeof(ys),typeof(ds)}(xs, ys, ds)
     end
 end
 
@@ -87,12 +85,12 @@ end
 
 
 "Similar to how SciPy's PCHIP does it"
-function _initial_ds_scipy(xs, ys)
+function _initial_ds_scipy(xs::AbstractArray, ys::AbstractArray)
     h(i) = xs[i+1]-xs[i]
     Δ(i) = (ys[i+1]-ys[i]) / h(i)
 
     N = length(xs)
-    ds = similar(xs)
+    ds = similar(ys./xs)
     if N == 2
         ds[:] .= Δ(1)
     else
@@ -127,14 +125,14 @@ function _edge_derivative(h1, h2, Δ1, Δ2)
     d
 end
 
-function _assert_xs_ys(xs, ys)
+function _assert_xs_ys(xs::AbstractArray, ys::AbstractArray)
     N = length(xs)
     @assert (N > 1)
     @assert (N == length(ys))
     assert_monotonic_increase(xs)
 end
 
-function assert_monotonic_increase(xs)
+function assert_monotonic_increase(xs::AbstractArray)
     foldl((a,b) -> (@assert (a < b); b), xs)
 end
 
