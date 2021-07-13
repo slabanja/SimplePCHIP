@@ -15,7 +15,7 @@ using Gadfly
 
 xs = [0.0  1.2  2.0  5.0 10.0 11.0]
 ys = [2.0  2.1  1.0  0.0  0.0  3.0]
-itp = interpolate(xs, ys)
+itp = Interpolator(xs, ys)
 
 xrange = range(xs[1], stop=xs[end], length=100)
 yinterpolated = [itp(x) for x ∈ xrange]

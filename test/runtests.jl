@@ -1,9 +1,9 @@
-using PCHIPInterpolation   # Will bring interpolate into namespace
+using PCHIPInterpolation
 using Test
 
 
 function test_interpolation_is_piecewise_monotone(xs, ys, N=10000)
-    itp = interpolate(xs, ys)
+    itp = Interpolator(xs, ys)
     for (i,j) in monotone_intervals(ys)
         @test is_monotone([itp(x) for x ∈ range(xs[i], stop=xs[j], length=N)])
     end
@@ -85,7 +85,7 @@ test_interpolation_is_piecewise_monotone(xs, ys)
 # Test internal functions
 
 # Make sure the correct interval is identified
-p = PCHIPInterpolation._pchip(3, [1.0 2.0 3.0], [0.0 0.0 0.0], [0.0 0.0 0.0])
+p = Interpolator([1.0 2.0 3.0], [0.0 0.0 0.0])
 for search ∈ (PCHIPInterpolation._pchip_index_linear_search, PCHIPInterpolation._pchip_index_bisectional_search)
     @test search(p, 1.0) == 1
     @test search(p, 1.0 + eps(1.0)) == 1

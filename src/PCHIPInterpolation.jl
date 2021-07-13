@@ -4,20 +4,28 @@ module PCHIPInterpolation
 # Derivative calculated in a fashion similar to SciPy's PchipInterpolate
 #
 
-export interpolate
+export Interpolator
 
 
-struct _pchip
+struct Interpolator
     N :: Integer
     xs :: Array{Float64}
     ys :: Array{Float64}
     ds :: Array{Float64}
+
+    function Interpolator(xs, ys)
+        xs_ = [x for x ∈ xs]
+        ys_ = [y for y ∈ ys]
+        _assert_xs_ys(xs_, ys_)
+        ds = _initial_ds_scipy(xs_, ys_)
+        new(length(xs_), xs_, ys_, ds)
+    end
 end
 
 ϕ(t) = 3t^2 - 2t^3
 ψ(t) = t^3 - t^2
 
-function _interp(pchip :: _pchip, x :: Number)
+function (pchip::Interpolator)(x::Number)
     i = _pchip_index(pchip, x)
     x1, x2 = pchip.xs[i:i+1]
     y1, y2 = pchip.ys[i:i+1]
@@ -30,7 +38,7 @@ function _interp(pchip :: _pchip, x :: Number)
      + d2*h * ψ((x-x1)/h))
 end
 
-function _pchip_index(pchip :: _pchip, x)
+function _pchip_index(pchip :: Interpolator, x)
     N = pchip.N
     if N < 200  # Approximate performance cross-over on my old intel i7-3517U
         i = _pchip_index_linear_search(pchip, x)
@@ -45,7 +53,7 @@ function _pchip_index(pchip :: _pchip, x)
     i
 end
 
-function _pchip_index_linear_search(pchip :: _pchip, x)
+function _pchip_index_linear_search(pchip :: Interpolator, x)
     xmin = pchip.xs[1]
     @assert (x >= xmin)
 
@@ -57,7 +65,7 @@ function _pchip_index_linear_search(pchip :: _pchip, x)
     i
 end
 
-function _pchip_index_bisectional_search(pchip :: _pchip, x)
+function _pchip_index_bisectional_search(pchip :: Interpolator, x)
     N = pchip.N
     imin, imax = 1, N
     xmin = pchip.xs[imin]
@@ -118,16 +126,6 @@ function _edge_derivative(h1, h2, Δ1, Δ2)
         d = 3Δ1
     end
     d
-end
-
-function interpolate(xs, ys)
-    xs_ = [x for x ∈ xs]
-    ys_ = [y for y ∈ ys]
-    _assert_xs_ys(xs_, ys_)
-    ds = _initial_ds_scipy(xs_, ys_)
-    pchip = _pchip(length(xs_), xs_, ys_, ds)
-
-    x -> _interp(pchip, x)
 end
 
 function _assert_xs_ys(xs, ys)
