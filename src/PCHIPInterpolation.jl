@@ -8,7 +8,6 @@ export Interpolator
 
 
 struct Interpolator
-    N :: Integer
     xs :: Array{Float64}
     ys :: Array{Float64}
     ds :: Array{Float64}
@@ -18,7 +17,7 @@ struct Interpolator
         ys_ = [y for y ∈ ys]
         _assert_xs_ys(xs_, ys_)
         ds = _initial_ds_scipy(xs_, ys_)
-        new(length(xs_), xs_, ys_, ds)
+        new(xs_, ys_, ds)
     end
 end
 
@@ -39,7 +38,7 @@ function (pchip::Interpolator)(x::Number)
 end
 
 function _pchip_index(pchip :: Interpolator, x)
-    N = pchip.N
+    N = length(pchip.xs)
     if N < 200  # Approximate performance cross-over on my old intel i7-3517U
         i = _pchip_index_linear_search(pchip, x)
     else
@@ -58,7 +57,7 @@ function _pchip_index_linear_search(pchip :: Interpolator, x)
     @assert (x >= xmin)
 
     i = 1
-    N = pchip.N
+    N = length(pchip.xs)
     while i < N  &&  x >= pchip.xs[i+1]
         i = i + 1
     end
@@ -66,7 +65,7 @@ function _pchip_index_linear_search(pchip :: Interpolator, x)
 end
 
 function _pchip_index_bisectional_search(pchip :: Interpolator, x)
-    N = pchip.N
+    N = length(pchip.xs)
     imin, imax = 1, N
     xmin = pchip.xs[imin]
     xmax = pchip.xs[imax]
