@@ -22,18 +22,20 @@ end
 ϕ(t) = 3t^2 - 2t^3
 ψ(t) = t^3 - t^2
 
-function (pchip::Interpolator)(x::Number)
-    i = _pchip_index(pchip, x)
+function _value_with_index(pchip::Interpolator, x::Number, i)
     x1, x2 = pchip.xs[i:i+1]
+    @assert x1 ≤ x ≤ x2
     y1, y2 = pchip.ys[i:i+1]
     d1, d2 = pchip.ds[i:i+1]
     h = x2 - x1
 
-    (y1 * ϕ((x2-x)/h)
-     + y2 * ϕ((x-x1)/h)
-     - d1*h * ψ((x2-x)/h)
-     + d2*h * ψ((x-x1)/h))
+    return (y1 * ϕ((x2-x)/h)
+           + y2 * ϕ((x-x1)/h)
+           - d1*h * ψ((x2-x)/h)
+           + d2*h * ψ((x-x1)/h))
 end
+
+(pchip::Interpolator)(x::Number) = _value_with_index(pchip, x, _pchip_index(pchip, x))
 
 function _pchip_index(pchip :: Interpolator, x)
     N = length(pchip.xs)
