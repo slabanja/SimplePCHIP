@@ -111,3 +111,12 @@ p = Interpolator([1.0 2.0 3.0 4.0], [4.0 3.0 2.0 1.0])
 @test integrate(p, 1, 2.75) + integrate(p, 2.75, 4) == integrate(p, 1, 4)
 @test integrate(p, 3, 1) == -integrate(p, 1, 3)
 
+# Test out of domain
+p = Interpolator([1.0 2.0 3.0 4.0], [4.0 3.0 2.0 1.0])
+@test p(1) == 4
+@test p(4) == 1
+@test_throws DomainError p(1 - 1e-6)
+@test_throws DomainError p(4 + 1e-6)
+@test_throws DomainError integrate(p, 1 - 1e-6, 4 + 1e-6)
+@test_throws DomainError integrate(p, 1 - 1e-6, 3)
+@test_throws DomainError integrate(p, 2, 4 + 1e-6)

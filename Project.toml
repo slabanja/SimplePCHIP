@@ -3,7 +3,11 @@ uuid = "afe20452-48d1-4729-9a8b-50fb251f06cd"
 authors = ["Gabriel S. Gerlero"]
 version = "0.1.0"
 
+[deps]
+ArgCheck = "dce04be8-c92d-5529-be00-80e4d2c0e197"
+
 [compat]
+ArgCheck = "2"
 julia = "1.5"
 
 [extras]

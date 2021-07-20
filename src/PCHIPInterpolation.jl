@@ -6,6 +6,8 @@ module PCHIPInterpolation
 
 export Interpolator, integrate
 
+using ArgCheck: @argcheck
+
 
 struct Interpolator{Xs,Ys,Ds}
     xs::Xs
@@ -77,6 +79,7 @@ function integrate(pchip::Interpolator, a::Number, b::Number)
 end
 
 function _pchip_index(pchip :: Interpolator, x)
+    @argcheck (pchip.xs[1] <= x <= pchip.xs[end]) DomainError
     N = length(pchip.xs)
     if N < 200  # Approximate performance cross-over on my old intel i7-3517U
         i = _pchip_index_linear_search(pchip, x)
