@@ -88,16 +88,12 @@ function _pchip_index(pchip :: Interpolator, x)
     end
     if i == N
         # Treat right endpoint as part of rightmost interval
-        @assert (x ≈ pchip.xs[N])
         i = N-1
     end
     i
 end
 
 function _pchip_index_linear_search(pchip :: Interpolator, x)
-    xmin = pchip.xs[1]
-    @assert (x >= xmin)
-
     i = 1
     N = length(pchip.xs)
     while i < N  &&  x >= pchip.xs[i+1]
@@ -109,9 +105,6 @@ end
 function _pchip_index_bisectional_search(pchip :: Interpolator, x)
     N = length(pchip.xs)
     imin, imax = 1, N
-    xmin = pchip.xs[imin]
-    xmax = pchip.xs[imax]
-    @assert (x >= xmin && x <= xmax)
 
     i = imin + div(imax - imin + 1, 2)
     while imin < imax
