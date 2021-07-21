@@ -26,6 +26,12 @@ plot(layer(x=xrange, y=yinterpolated, Geom.line),
 
 ![](https://cloud.githubusercontent.com/assets/154866/23104112/e94d7eda-f6c7-11e6-9108-888555ed8d6a.png)
 
+Besides being evaluated, `Interpolator` objects can also be integrated. For instance,
+```jl
+integral = integrate(itp, 1, 3)
+```
+computes the definite integral of `itp` between 1 and 3.
+
 ## Why PCHIP?
 PCHIP interpolation preserves monotonicity.
 E.g., if input data points are monotonically increasing, so will the interpolated points.
