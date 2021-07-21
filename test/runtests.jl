@@ -120,3 +120,14 @@ p = Interpolator([1.0, 2.0, 3.0, 4.0], [4.0, 3.0, 2.0, 1.0])
 @test_throws DomainError integrate(p, 1 - 1e-6, 4 + 1e-6)
 @test_throws DomainError integrate(p, 1 - 1e-6, 3)
 @test_throws DomainError integrate(p, 2, 4 + 1e-6)
+
+# Test too short
+@test_throws ArgumentError Interpolator([1.0], [4.0])
+@test_throws ArgumentError Interpolator([], [])
+
+# Test mismatched lengths
+@test_throws DimensionMismatch Interpolator([1.0, 2.0, 3.0, 4.0], [4.0, 3.0, 2.0])
+@test_throws DimensionMismatch Interpolator([1.0, 2.0, 3.0], [4.0, 3.0, 2.0, 1.0])
+
+# Test non-increasing xs
+@test_throws ArgumentError Interpolator([1.0, 2.0, 3.0, 3.0], [4.0, 3.0, 2.0, 1.0])
