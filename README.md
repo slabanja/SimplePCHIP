@@ -1,26 +1,16 @@
+# PCHIPInterpolation.jl
 
-| **Build Status**                                              |
-|:-------------------------------------------------------------:|
-| [![][travis-img]][travis-url] [![][codecov-img]][codecov-url] |
+[![Build Status](https://github.com/gerlero/PCHIPInterpolation.jl/workflows/CI/badge.svg)](https://github.com/gerlero/PCHIPInterpolation.jl/actions)
+[![Coverage](https://codecov.io/gh/gerlero/PCHIPInterpolation.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/gerlero/PCHIPInterpolation.jl)
 
-
-[travis-img]: https://travis-ci.org/slabanja/SimplePCHIP.svg?branch=master
-[travis-url]: https://travis-ci.org/slabanja/SimplePCHIP
-
-[codecov-img]: https://codecov.io/gh/slabanja/SimplePCHIP/branch/master/graph/badge.svg
-[codecov-url]: https://codecov.io/gh/slabanja/SimplePCHIP/
-
-
-# SimplePCHIP
-
-This package provide functionality to perform piecewise cubic hermite interpolating polynomial (PCHIP)
+This package provides functionality to perform piecewise cubic hermite interpolating polynomial (PCHIP)
 interpolation of arbitrarily spaced 1-dimensional data.
 
 
 ## Summary
-The basic use of SimplePCHIP can be illustrated with the following snippet
+The basic use of PCHIPInterpolation can be illustrated with the following snippet:
 ```jl
-using SimplePCHIP
+using PCHIPInterpolation
 using Gadfly
 
 xs = [0.0  1.2  2.0  5.0 10.0 11.0]
@@ -38,7 +28,7 @@ plot(layer(x=xrange, y=yinterpolated, Geom.line),
 
 ## Why PCHIP?
 PCHIP interpolation preserves monotonicity.
-E.g., if input data point are monotonically increasing, so will the interpolated points.
+E.g., if input data points are monotonically increasing, so will the interpolated points.
 Also, the interpolated points will not overshoot.
 
 It can be illustrated by zooming in on the plot above, at around x=1.2 and x=10.0,
@@ -49,7 +39,7 @@ It can be illustrated by zooming in on the plot above, at around x=1.2 and x=10.
 
 ## See also
 
-SimplePCHIP was created to provide interpolation similar to SciPy's
+PCHIPInterpolation is a fork of [SimplePCHIP](https://https://github.com/slabanja/SimplePCHIP), a package created to provide interpolation similar to SciPy's
 [PchipInterpolation](http://scipy.github.io/devdocs/generated/scipy.interpolate.PchipInterpolator.html).
 
 For further details on PCHIP interpolation, there is of course a wikipedia article about [Monotone cubic interpolation](https://en.wikipedia.org/wiki/Monotone_cubic_interpolation), also [this pdf about interpolation](https://www.mathworks.com/content/dam/mathworks/mathworks-dot-com/moler/interp.pdf) (with a focus on Matlab) provides details on PCHIP interpolation.

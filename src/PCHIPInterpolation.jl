@@ -1,4 +1,4 @@
-module SimplePCHIP
+module PCHIPInterpolation
 #
 # Simple PCHIP implementation following Fritsch and Carlson, SIAM J. NUMER. ANAL. 17 (1980) 238-246.
 # Derivative calculated in a fashion similar to SciPy's PchipInterpolate

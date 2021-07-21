@@ -1,4 +1,4 @@
-using SimplePCHIP   # WIll bring interpolate into namespace
+using PCHIPInterpolation   # Will bring interpolate into namespace
 using Test
 
 
@@ -85,8 +85,8 @@ test_interpolation_is_piecewise_monotone(xs, ys)
 # Test internal functions
 
 # Make sure the correct interval is identified
-p = SimplePCHIP._pchip(3, [1.0 2.0 3.0], [0.0 0.0 0.0], [0.0 0.0 0.0])
-for search ∈ (SimplePCHIP._pchip_index_linear_search, SimplePCHIP._pchip_index_bisectional_search)
+p = PCHIPInterpolation._pchip(3, [1.0 2.0 3.0], [0.0 0.0 0.0], [0.0 0.0 0.0])
+for search ∈ (PCHIPInterpolation._pchip_index_linear_search, PCHIPInterpolation._pchip_index_bisectional_search)
     @test search(p, 1.0) == 1
     @test search(p, 1.0 + eps(1.0)) == 1
     @test search(p, 2.0 - eps(2.0)) == 1

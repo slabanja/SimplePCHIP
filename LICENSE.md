@@ -1,5 +1,8 @@
-The SimplePCHIP.jl package is licensed under the Simplified "2-clause" BSD License:
+The PCHIPInterpolation.jl package is licensed under the Simplified "2-clause" BSD License:
 
+> Copyright (c) 2021: Gabriel S. Gerlero.
+> All rights reserved.
+>
 > Copyright (c) 2017: mattias slabanja.
 > All rights reserved.
 > 
