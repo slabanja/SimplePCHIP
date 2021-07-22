@@ -45,7 +45,7 @@ It can be illustrated by zooming in on the plot above, at around x=1.2 and x=10.
 
 ## See also
 
-PCHIPInterpolation is a fork of [SimplePCHIP](https://https://github.com/slabanja/SimplePCHIP), a package created to provide interpolation similar to SciPy's
-[PchipInterpolation](http://scipy.github.io/devdocs/generated/scipy.interpolate.PchipInterpolator.html).
+PCHIPInterpolation is a fork of [SimplePCHIP](https://github.com/slabanja/SimplePCHIP), a package created to provide interpolation similar to SciPy's
+[PchipInterpolation](https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.PchipInterpolator.html).
 
 For further details on PCHIP interpolation, there is of course a wikipedia article about [Monotone cubic interpolation](https://en.wikipedia.org/wiki/Monotone_cubic_interpolation), also [this pdf about interpolation](https://www.mathworks.com/content/dam/mathworks/mathworks-dot-com/moler/interp.pdf) (with a focus on Matlab) provides details on PCHIP interpolation.
