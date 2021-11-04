@@ -6,6 +6,12 @@
 This package provides functionality to perform piecewise cubic hermite interpolating polynomial (PCHIP)
 interpolation of arbitrarily spaced 1-dimensional data.
 
+## Installation
+From within Julia:
+```jl
+import Pkg; Pkg.add("PCHIPInterpolation")
+```
+
 
 ## Summary
 The basic use of PCHIPInterpolation can be illustrated with the following snippet:
