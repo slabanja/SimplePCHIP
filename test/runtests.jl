@@ -131,3 +131,14 @@ p = Interpolator([1.0, 2.0, 3.0, 4.0], [4.0, 3.0, 2.0, 1.0])
 
 # Test non-increasing xs
 @test_throws ArgumentError Interpolator([1.0, 2.0, 3.0, 3.0], [4.0, 3.0, 2.0, 1.0])
+
+# Regression test for https://github.com/gerlero/PCHIPInterpolation.jl/issues/8
+x = collect(range(0, stop=1, length=199))
+itp = Interpolator(x, x)
+@test itp(1) == 1
+x = collect(range(0, stop=1, length=200))
+itp = Interpolator(x, x)
+@test itp(1) == 1
+x = collect(range(0, stop=1, length=1000))
+itp = Interpolator(x, x)
+@test itp(1) == 1
