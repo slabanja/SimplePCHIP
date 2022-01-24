@@ -116,7 +116,7 @@ function _pchip_index_bisectional_search(pchip :: Interpolator, x)
     while imin < imax
         if x < pchip.xs[i]
             imax = i - 1
-        elseif x >= pchip.xs[i+1]
+        elseif i < N && x >= pchip.xs[i+1]
             imin = i + 1
         else
             break
