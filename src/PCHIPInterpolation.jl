@@ -23,7 +23,7 @@ struct Interpolator{Xs,Ys,Ds}
         end
 
         ds = _initial_ds_scipy(xs, ys)
-        new{typeof(xs),typeof(ys),typeof(ds)}(xs, ys, ds)
+        new{typeof(xs),typeof(ys),typeof(ds)}(deepcopy(xs), deepcopy(ys), ds)
     end
 end
 
