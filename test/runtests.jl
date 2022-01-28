@@ -142,3 +142,12 @@ itp = Interpolator(x, x)
 x = collect(range(0, stop=1, length=1000))
 itp = Interpolator(x, x)
 @test itp(1) == 1
+
+# Regression test for https://github.com/gerlero/PCHIPInterpolation.jl/issues/11
+v = [1, 2, 3]
+p = Interpolator(v, v)
+xs = copy(p.xs)
+ys = copy(p.ys)
+v .= -1
+@test p.xs == xs
+@test p.ys == ys
