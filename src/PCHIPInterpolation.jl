@@ -7,6 +7,7 @@ module PCHIPInterpolation
 export Interpolator, integrate
 
 using ArgCheck: @argcheck
+using RecipesBase: @recipe, @series, RecipesBase
 
 
 struct Interpolator{Xs,Ys,Ds}
@@ -166,6 +167,23 @@ function _edge_derivative(h1, h2, Δ1, Δ2)
         d = 3Δ1
     end
     d
+end
+
+@recipe function f(pchip::Interpolator; markershape=:none)
+    @series begin
+        markershape := :none
+        plotdensity = clamp(10length(pchip.xs), 1000, 100000)
+        x = range(pchip.xs[1], stop=pchip.xs[end], length=plotdensity)
+        return x, pchip.(x)
+    end
+    if markershape !== :none
+        @series begin
+            seriestype := :scatter
+            primary := false
+            return pchip.xs, pchip.ys
+        end
+    end
+    return nothing
 end
 
 end  # module
