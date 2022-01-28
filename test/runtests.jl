@@ -1,6 +1,7 @@
 using PCHIPInterpolation
 using Test
 
+using Plots: plot
 
 function test_interpolation_is_piecewise_monotone(xs, ys, N=10000)
     itp = Interpolator(xs, ys)
@@ -131,6 +132,13 @@ p = Interpolator([1.0, 2.0, 3.0, 4.0], [4.0, 3.0, 2.0, 1.0])
 
 # Test non-increasing xs
 @test_throws ArgumentError Interpolator([1.0, 2.0, 3.0, 3.0], [4.0, 3.0, 2.0, 1.0])
+
+# Test plot recipe
+xs = [0.0,  1.2,  2.0,  5.0, 10.0, 11.0]
+ys = [2.0,  2.1,  1.0,  0.0,  0.0,  3.0]
+p = Interpolator(xs, ys)
+plot(p)
+plot(p, markershape=:auto)
 
 # Regression test for https://github.com/gerlero/PCHIPInterpolation.jl/issues/8
 x = collect(range(0, stop=1, length=199))
