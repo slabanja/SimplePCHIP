@@ -169,7 +169,7 @@ function _edge_derivative(h1, h2, Δ1, Δ2)
     d
 end
 
-@recipe function f(pchip::Interpolator; markershape=:none)
+@recipe function f(pchip::Interpolator; markershape=:none) \
     @series begin
         markershape := :none
         plotdensity = clamp(10length(pchip.xs), 1000, 100000)
