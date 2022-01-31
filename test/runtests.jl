@@ -1,6 +1,7 @@
 using PCHIPInterpolation
 using Test
 
+using ForwardDiff: derivative
 using Plots: plot
 
 function test_interpolation_is_piecewise_monotone(xs, ys, N=10000)
@@ -98,6 +99,7 @@ for search ∈ (PCHIPInterpolation._pchip_index_linear_search, PCHIPInterpolatio
 end
 
 # Test integration
+p = Interpolator([1.0, 2.0, 3.0], [0.0, 0.0, 0.0])
 @test integrate(p, 1, 3) == 0
 @test integrate(p, 3, 1) == 0
 @test integrate(p, 1, 2) == 0
@@ -111,6 +113,30 @@ p = Interpolator([1.0, 2.0, 3.0, 4.0], [4.0, 3.0, 2.0, 1.0])
 @test integrate(p, 1, 2) + integrate(p, 2, 4) == integrate(p, 1, 4)
 @test integrate(p, 1, 2.75) + integrate(p, 2.75, 4) == integrate(p, 1, 4)
 @test integrate(p, 3, 1) == -integrate(p, 1, 3)
+
+# Test with ForwardDiff
+p = Interpolator([1.0, 2.0, 3.0], [0.0, 0.0, 0.0])
+@test derivative(p, 1) == 0
+@test derivative(p, 2) == 0
+@test derivative(p, 3) == 0
+@test derivative(p, 1.25) == 0
+@test derivative(p, 2.25) == 0
+
+p = Interpolator([1.0, 2.0, 3.0, 4.0], [4.0, 3.0, 2.0, 1.0])
+@test derivative(p, 1) == -1
+@test derivative(p, 2) == -1
+@test derivative(p, 3) == -1
+@test derivative(p, 4) == -1
+@test derivative(p, 2.75) == -1
+
+xs = [0.0,  1.2,  2.0,  5.0, 10.0, 11.0]
+ys = [2.0,  2.1,  1.0,  0.0,  0.0,  3.0]
+p = Interpolator(xs, ys)
+for x ∈ [0, 1, 3.14, 5, 9, 11]
+    @test derivative(b -> integrate(p, 0, b), x) ≈ p(x)
+    @test derivative(b -> integrate(p, 1.1, b), x) ≈ p(x)
+    @test derivative(b -> integrate(p, 11, b), x) ≈ p(x)
+end
 
 # Test out of domain
 p = Interpolator([1.0, 2.0, 3.0, 4.0], [4.0, 3.0, 2.0, 1.0])
