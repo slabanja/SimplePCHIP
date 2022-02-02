@@ -5,7 +5,7 @@ using ForwardDiff: derivative
 using Plots: plot
 
 function test_interpolation_is_piecewise_monotone(xs, ys, N=10000)
-    itp = Interpolator(xs, ys)
+    itp = @inferred Interpolator(xs, ys)
     for (i,j) in monotone_intervals(ys)
         @test is_monotone([itp(x) for x ∈ range(xs[i], stop=xs[j], length=N)])
     end
@@ -84,59 +84,67 @@ test_interpolation_is_piecewise_monotone(xs, ys)
 @test ! is_monotone([1.0, 0.0, 1.0])
 
 
-# Test internal functions
-
 # Make sure the correct interval is identified
 p = Interpolator([1.0, 2.0, 3.0], [0.0, 0.0, 0.0])
 for search ∈ (PCHIPInterpolation._pchip_index_linear_search, PCHIPInterpolation._pchip_index_bisectional_search)
-    @test search(p, 1.0) == 1
-    @test search(p, 1.0 + eps(1.0)) == 1
-    @test search(p, 2.0 - eps(2.0)) == 1
-    @test search(p, 2.0) == 2
-    @test search(p, 2.0 + eps(2.0)) == 2
-    @test search(p, 3.0 - eps(3.0)) == 2
-    @test search(p, 3.0) == 3
+    @test @inferred search(p, 1.0) == 1
+    @test @inferred search(p, 1.0 + eps(1.0)) == 1
+    @test @inferred search(p, 2.0 - eps(2.0)) == 1
+    @test @inferred search(p, 2.0) == 2
+    @test @inferred search(p, 2.0 + eps(2.0)) == 2
+    @test @inferred search(p, 3.0 - eps(3.0)) == 2
+    @test @inferred search(p, 3.0) == 3
 end
 
-# Test integration
-p = Interpolator([1.0, 2.0, 3.0], [0.0, 0.0, 0.0])
-@test integrate(p, 1, 3) == 0
-@test integrate(p, 3, 1) == 0
-@test integrate(p, 1, 2) == 0
-@test integrate(p, 2, 3) == 0
-@test integrate(p, 1.25, 2) == 0
-@test integrate(p, 1, 2.25) == 0
-@test integrate(p, 1.25, 2.25) == 0
 
-p = Interpolator([1.0, 2.0, 3.0, 4.0], [4.0, 3.0, 2.0, 1.0])
+# Test interpolation
+xs = [0.0,  1.2,  2.0,  5.0, 10.0, 11.0]
+ys = [2.0,  2.1,  1.0,  0.0,  0.0,  3.0]
+p = @inferred Interpolator(xs, ys)
+@test @inferred p.(xs) == ys
+
+
+# Test integration
+p = @inferred Interpolator([1.0, 2.0, 3.0], [0.0, 0.0, 0.0])
+@test @inferred integrate(p, 1, 3) == 0
+@test @inferred integrate(p, 3, 1) == 0
+@test @inferred integrate(p, 1, 2) == 0
+@test @inferred integrate(p, 2, 3) == 0
+@test @inferred integrate(p, 1.25, 2) == 0
+@test @inferred integrate(p, 1, 2.25) == 0
+@test @inferred integrate(p, 1.25, 2.25) == 0
+
+p = @inferred Interpolator([1.0, 2.0, 3.0, 4.0], [4.0, 3.0, 2.0, 1.0])
 @test integrate(p, 1, 4) == 3*3/2 + 3
 @test integrate(p, 1, 2) + integrate(p, 2, 4) == integrate(p, 1, 4)
 @test integrate(p, 1, 2.75) + integrate(p, 2.75, 4) == integrate(p, 1, 4)
 @test integrate(p, 3, 1) == -integrate(p, 1, 3)
 
-# Test with ForwardDiff
-p = Interpolator([1.0, 2.0, 3.0], [0.0, 0.0, 0.0])
-@test derivative(p, 1) == 0
-@test derivative(p, 2) == 0
-@test derivative(p, 3) == 0
-@test derivative(p, 1.25) == 0
-@test derivative(p, 2.25) == 0
 
-p = Interpolator([1.0, 2.0, 3.0, 4.0], [4.0, 3.0, 2.0, 1.0])
-@test derivative(p, 1) == -1
-@test derivative(p, 2) == -1
-@test derivative(p, 3) == -1
-@test derivative(p, 4) == -1
-@test derivative(p, 2.75) == -1
+# Test with ForwardDiff
+p = @inferred Interpolator([1.0, 2.0, 3.0], [0.0, 0.0, 0.0])
+@test @inferred derivative(p, 1) == 0
+@test @inferred derivative(p, 2) == 0
+@test @inferred derivative(p, 3) == 0
+@test @inferred derivative(p, 1.25) == 0
+@test @inferred derivative(p, 2.25) == 0
+
+p = @inferred Interpolator([1.0, 2.0, 3.0, 4.0], [4.0, 3.0, 2.0, 1.0])
+@test @inferred derivative(p, 1) == -1
+@test @inferred derivative(p, 2) == -1
+@test @inferred derivative(p, 3) == -1
+@test @inferred derivative(p, 4) == -1
+@test @inferred derivative(p, 2.75) == -1
 
 xs = [0.0,  1.2,  2.0,  5.0, 10.0, 11.0]
 ys = [2.0,  2.1,  1.0,  0.0,  0.0,  3.0]
-p = Interpolator(xs, ys)
+p = @inferred Interpolator(xs, ys)
 for x ∈ [0, 1, 3.14, 5, 9, 11]
     @test derivative(b -> integrate(p, 0, b), x) ≈ p(x)
     @test derivative(b -> integrate(p, 1.1, b), x) ≈ p(x)
     @test derivative(b -> integrate(p, 11, b), x) ≈ p(x)
 end
+
 
 # Test out of domain
 p = Interpolator([1.0, 2.0, 3.0, 4.0], [4.0, 3.0, 2.0, 1.0])
@@ -159,12 +167,14 @@ p = Interpolator([1.0, 2.0, 3.0, 4.0], [4.0, 3.0, 2.0, 1.0])
 # Test non-increasing xs
 @test_throws ArgumentError Interpolator([1.0, 2.0, 3.0, 3.0], [4.0, 3.0, 2.0, 1.0])
 
+
 # Test plot recipe
 xs = [0.0,  1.2,  2.0,  5.0, 10.0, 11.0]
 ys = [2.0,  2.1,  1.0,  0.0,  0.0,  3.0]
-p = Interpolator(xs, ys)
+p = @inferred Interpolator(xs, ys)
 plot(p)
 plot(p, markershape=:auto)
+
 
 # Regression test for https://github.com/gerlero/PCHIPInterpolation.jl/issues/8
 x = collect(range(0, stop=1, length=199))
