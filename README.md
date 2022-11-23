@@ -1,7 +1,7 @@
 # PCHIPInterpolation.jl
 
-[![Build Status](https://github.com/gerlero/PCHIPInterpolation.jl/workflows/CI/badge.svg)](https://github.com/gerlero/PCHIPInterpolation.jl/actions)
-[![Coverage](https://codecov.io/gh/gerlero/PCHIPInterpolation.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/gerlero/PCHIPInterpolation.jl)
+[![Build Status](https://github.com/gerlero/PCHIPInterpolation.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/gerlero/PCHIPInterpolation.jl/actions/workflows/CI.yml?query=branch%3Amain)
+[![Coverage](https://codecov.io/gh/gerlero/PCHIPInterpolation.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/gerlero/PCHIPInterpolation.jl)
 
 This package provides functionality to perform piecewise cubic hermite interpolating polynomial (PCHIP)
 interpolation of arbitrarily spaced 1-dimensional data.
