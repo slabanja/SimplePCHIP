@@ -1,7 +1,7 @@
 name = "PCHIPInterpolation"
 uuid = "afe20452-48d1-4729-9a8b-50fb251f06cd"
 authors = ["Gabriel S. Gerlero <ggerlero@cimec.unl.edu.ar>", "Pablo A. Kler"]
-version = "0.1.2"
+version = "0.1.3"
 
 [deps]
 ArgCheck = "dce04be8-c92d-5529-be00-80e4d2c0e197"
