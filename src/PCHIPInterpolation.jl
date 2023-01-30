@@ -19,7 +19,7 @@ struct Interpolator{Xs,Ys,Ds}
         @argcheck length(xs) ≥ 2
         @argcheck length(xs) == length(ys) DimensionMismatch
         foldl(xs) do a,b
-            @argcheck a < b "xs must be stricly increasing"
+            @argcheck a < b "xs must be strictly increasing"
             return b
         end
 
