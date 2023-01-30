@@ -104,6 +104,15 @@ p = @inferred Interpolator(xs, ys)
 @test @inferred p.(xs) == ys
 
 
+# Test interpolator with custom derivatives (non-monotonic)
+xs = 1:4
+ys = xs
+ds = -ones(length(ys))
+itp = @inferred Interpolator(xs, ys, ds)
+@test all(derivative(itp, x) == d for (x,d) in zip(xs,ds))
+@test itp(1) < itp(1.9) > itp(2) < itp(2.9) > itp(3) < itp(3.9) > itp(4)
+
+
 # Test integration
 p = @inferred Interpolator([1.0, 2.0, 3.0], [0.0, 0.0, 0.0])
 @test @inferred integrate(p, 1, 3) == 0

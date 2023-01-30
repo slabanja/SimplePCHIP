@@ -19,12 +19,23 @@ struct Interpolator{Xs,Ys,Ds}
         @argcheck length(xs) ≥ 2
         @argcheck length(xs) == length(ys) DimensionMismatch
         foldl(xs) do a,b
-            @argcheck a < b "xs must be stricly increasing"
+            @argcheck a < b "xs must be strictly increasing"
             return b
         end
 
         ds = _initial_ds_scipy(xs, ys)
         new{typeof(xs),typeof(ys),typeof(ds)}(deepcopy(xs), deepcopy(ys), ds)
+    end
+
+    function Interpolator(xs::AbstractVector, ys::AbstractVector, _ds::AbstractVector)
+        @argcheck length(xs) ≥ 2
+        @argcheck length(xs) == length(ys) == length(_ds) DimensionMismatch
+        foldl(xs) do a,b
+            @argcheck a < b "xs must be strictly increasing"
+            return b
+        end
+
+        new{typeof(xs),typeof(ys),typeof(_ds)}(deepcopy(xs), deepcopy(ys), deepcopy(_ds))
     end
 end
 
