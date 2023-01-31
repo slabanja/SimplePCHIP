@@ -43,11 +43,16 @@ _ϕ(t) = 3t^2 - 2t^3
 _ψ(t) = t^3 - t^2
 
 function _value_with_index(pchip::Interpolator, x::Number, i)
-    x1, x2 = pchip.xs[i:i+1]
+    x1 = pchip.xs[i]
+    x2 = pchip.xs[i+1]
     @assert x1 ≤ x ≤ x2
-    y1, y2 = pchip.ys[i:i+1]
-    d1, d2 = pchip.ds[i:i+1]
     h = x2 - x1
+
+    y1 = pchip.ys[i]
+    y2 = pchip.ys[i+1]
+
+    d1 = pchip.ds[i]
+    d2 = pchip.ds[i+1]
 
     return (y1 * _ϕ((x2-x)/h)
            + y2 * _ϕ((x-x1)/h)
