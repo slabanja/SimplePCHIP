@@ -39,8 +39,8 @@ struct Interpolator{Xs,Ys,Ds}
     end
 end
 
-ϕ(t) = 3t^2 - 2t^3
-ψ(t) = t^3 - t^2
+_ϕ(t) = 3t^2 - 2t^3
+_ψ(t) = t^3 - t^2
 
 function _value_with_index(pchip::Interpolator, x::Number, i)
     x1, x2 = pchip.xs[i:i+1]
@@ -49,10 +49,10 @@ function _value_with_index(pchip::Interpolator, x::Number, i)
     d1, d2 = pchip.ds[i:i+1]
     h = x2 - x1
 
-    return (y1 * ϕ((x2-x)/h)
-           + y2 * ϕ((x-x1)/h)
-           - d1*h * ψ((x2-x)/h)
-           + d2*h * ψ((x-x1)/h))
+    return (y1 * _ϕ((x2-x)/h)
+           + y2 * _ϕ((x-x1)/h)
+           - d1*h * _ψ((x2-x)/h)
+           + d2*h * _ψ((x-x1)/h))
 end
 
 (pchip::Interpolator)(x::Number) = _value_with_index(pchip, x, _pchip_index(pchip, x))
