@@ -203,13 +203,13 @@ plot(p, markershape=:auto)
 
 
 # Regression test for https://github.com/gerlero/PCHIPInterpolation.jl/issues/8
-x = collect(range(0, stop=1, length=199))
+x = collect(range(0, stop=1, length=24))
 itp = Interpolator(x, x)
 @test itp(1) == 1
-x = collect(range(0, stop=1, length=200))
+x = collect(range(0, stop=1, length=25))
 itp = Interpolator(x, x)
 @test itp(1) == 1
-x = collect(range(0, stop=1, length=1000))
+x = collect(range(0, stop=1, length=100))
 itp = Interpolator(x, x)
 @test itp(1) == 1
 
