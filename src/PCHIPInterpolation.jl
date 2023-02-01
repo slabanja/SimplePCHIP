@@ -104,7 +104,9 @@ end
 function _pchip_index(pchip :: Interpolator, x)
     @argcheck (pchip.xs[1] <= x <= pchip.xs[end]) DomainError
     N = length(pchip.xs)
-    if N < 25 # Approximate performance cross-over on my M1 MacBook Air
+    if pchip.xs isa AbstractRange # Optimization for ranges
+        i = searchsortedlast(pchip.xs, x)
+    elseif N < 25 # Approximate performance cross-over on my M1 MacBook Air
         i = _pchip_index_linear_search(pchip, x)
     else
         i = _pchip_index_bisectional_search(pchip, x)
