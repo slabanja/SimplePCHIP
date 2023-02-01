@@ -43,8 +43,8 @@ _ϕ(t) = 3t^2 - 2t^3
 _ψ(t) = t^3 - t^2
 
 function _value_with_index(pchip::Interpolator, x::Number, i)
-    x1 = pchip.xs[i]
-    x2 = pchip.xs[i+1]
+    x1 = @inbounds pchip.xs[i]
+    x2 = @inbounds pchip.xs[i+1]
     @assert x1 ≤ x ≤ x2
     h = x2 - x1
 
@@ -64,14 +64,14 @@ end
 
 function _integrate_segment(pchip::Interpolator, i, x1=nothing, x2=nothing)
     if isnothing(x1)
-        x1 = pchip.xs[i]
+        x1 = @inbounds pchip.xs[i]
         y1 = pchip.ys[i]
     else
         y1 = _value_with_index(pchip, x1, i)
     end
 
     if isnothing(x2)
-        x2 = pchip.xs[i+1]
+        x2 = @inbounds pchip.xs[i+1]
         y2 = pchip.ys[i+1]
     else
         y2 = _value_with_index(pchip, x2, i)
