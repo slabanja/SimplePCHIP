@@ -101,48 +101,49 @@ function integrate(pchip::Interpolator, a::Number, b::Number)
     return integral
 end
 
-function _pchip_index(pchip :: Interpolator, x)
-    @argcheck (pchip.xs[1] <= x <= pchip.xs[end]) DomainError
-    N = length(pchip.xs)
+function _pchip_index(pchip::Interpolator, x)
+    @argcheck pchip.xs[begin] <= x <= pchip.xs[end] DomainError
+
     if pchip.xs isa AbstractRange # Optimization for ranges
         i = searchsortedlast(pchip.xs, x)
-    elseif N < 25 # Approximate performance cross-over on my M1 MacBook Air
+    elseif length(pchip.xs) < 25 # Approximate performance cross-over on my M1 MacBook Air
         i = _pchip_index_linear_search(pchip, x)
     else
         i = _pchip_index_bisectional_search(pchip, x)
     end
-    if i == N
-        # Treat right endpoint as part of rightmost interval
-        i = N-1
-    end
-    i
+
+    return min(i, lastindex(pchip.xs) - 1) # Treat right endpoint as part of rightmost interval
 end
 
-function _pchip_index_linear_search(pchip :: Interpolator, x)
-    i = 1
-    N = length(pchip.xs)
-    while i < N  &&  x >= pchip.xs[i+1]
-        i = i + 1
+function _pchip_index_linear_search(pchip::Interpolator, x)
+    i = firstindex(pchip.xs)
+    N = lastindex(pchip.xs)
+
+    while i < N && x >= @inbounds pchip.xs[i+1]
+        i += 1
     end
-    i
+
+    return i
 end
 
-function _pchip_index_bisectional_search(pchip :: Interpolator, x)
-    N = length(pchip.xs)
-    imin, imax = 1, N
+function _pchip_index_bisectional_search(pchip::Interpolator, x)
+    N = lastindex(pchip.xs)
+    imin = firstindex(pchip.xs)
+    imax = N
 
-    i = imin + div(imax - imin + 1, 2)
+    i = imin + (imax - imin + 1)÷2
     while imin < imax
-        if x < pchip.xs[i]
+        if x < @inbounds pchip.xs[i]
             imax = i - 1
-        elseif i < N && x >= pchip.xs[i+1]
+        elseif i < N && x >= @inbounds pchip.xs[i+1]
             imin = i + 1
         else
             break
         end
-        i = imin + div(imax - imin + 1, 2)
+        i = imin + (imax - imin + 1)÷2
     end
-    i
+
+    return i
 end
 
 
