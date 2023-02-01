@@ -104,6 +104,23 @@ p = @inferred Interpolator(xs, ys)
 @test @inferred p.(xs) == ys
 
 
+# Test interpolation with ranges
+xs = 1:10
+ys = 2:11
+p = @inferred Interpolator(xs, ys)
+@test @inferred p.(xs) == ys
+
+xs = 2:101
+ys = collect(3:102)
+p = @inferred Interpolator(xs, ys)
+@test @inferred p.(xs) == ys
+
+p2 = @inferred Interpolator(collect(xs), ys)
+
+xs2 = [2.73, 3.14, 10, 15, 50, 60, 85]
+@test @inferred p2.(xs) == p.(xs)
+
+
 # Test interpolator with custom derivatives (non-monotonic)
 xs = 1:4
 ys = xs
