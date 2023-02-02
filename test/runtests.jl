@@ -86,7 +86,7 @@ test_interpolation_is_piecewise_monotone(xs, ys)
 
 # Make sure the correct interval is identified
 p = Interpolator([1.0, 2.0, 3.0], [0.0, 0.0, 0.0])
-for search ∈ (PCHIPInterpolation._pchip_index_linear_search, PCHIPInterpolation._pchip_index_bisectional_search)
+for search ∈ (PCHIPInterpolation._pchip_index_linear_search, PCHIPInterpolation._pchip_index_bisectional_search, (p,x) -> searchsortedlast(p.xs, x))
     @test @inferred search(p, 1.0) == 1
     @test @inferred search(p, 1.0 + eps(1.0)) == 1
     @test @inferred search(p, 2.0 - eps(2.0)) == 1
