@@ -42,7 +42,7 @@ end
 _ϕ(t) = 3t^2 - 2t^3
 _ψ(t) = t^3 - t^2
 
-function _value_with_index(pchip::Interpolator, x::Number, i)
+@inline function _value_with_index(pchip::Interpolator, x::Number, i)
     x1 = @inbounds pchip.xs[i]
     x2 = @inbounds pchip.xs[i+1]
     @assert x1 ≤ x ≤ x2
@@ -60,7 +60,7 @@ function _value_with_index(pchip::Interpolator, x::Number, i)
            + d2*h * _ψ((x-x1)/h))
 end
 
-(pchip::Interpolator)(x::Number) = _value_with_index(pchip, x, _pchip_index(pchip, x))
+@inline (pchip::Interpolator)(x::Number) = _value_with_index(pchip, x, _findindex(pchip, x))
 
 function _integrate_segment(pchip::Interpolator, i, x1=nothing, x2=nothing)
     if isnothing(x1)
@@ -85,8 +85,8 @@ function integrate(pchip::Interpolator, a::Number, b::Number)
         return -integrate(pchip, b, a)
     end
 
-    i = _pchip_index(pchip, a)
-    j = _pchip_index(pchip, b)
+    i = _findindex(pchip, a)
+    j = _findindex(pchip, b)
 
     if i == j
         return _integrate_segment(pchip, i, a, b)
@@ -101,42 +101,49 @@ function integrate(pchip::Interpolator, a::Number, b::Number)
     return integral
 end
 
-function _pchip_index(pchip::Interpolator, x)
-    @argcheck pchip.xs[begin] <= x <= pchip.xs[end] DomainError
-    sz = sizeof(pchip.xs)
 
-    if pchip.xs isa AbstractRange || sz > 620
-        i = searchsortedlast(pchip.xs, x)
-    elseif sz < 200 # Approximate performance cross-over on my M1 MacBook Air
-        i = _pchip_index_linear_search(pchip, x)
-    else
-        i = _pchip_index_bisectional_search(pchip, x)
+@inline _findindex(pchip::Interpolator{<:AbstractRange}, x) = _findindex_base(pchip.xs, x) # Base binary search has an overload for ranges
+@inline _findindex(pchip::Interpolator, x) = _findindex_custom(pchip.xs, x) # Otherwise, the custom search is preferred
+
+
+@inline function _findindex_base(xs, x) # Generic binary search from Julia Base
+    i = searchsortedlast(xs, x)
+
+    if i < firstindex(xs)
+        throw(DomainError(x, "Below interpolation range"))
     end
 
-    return min(i, lastindex(pchip.xs) - 1) # Treat right endpoint as part of rightmost interval
-end
-
-function _pchip_index_linear_search(pchip::Interpolator, x)
-    i = firstindex(pchip.xs)
-    N = lastindex(pchip.xs)
-
-    while i < N && x >= @inbounds pchip.xs[i+1]
-        i += 1
+    if i == lastindex(xs)
+        if x != @inbounds xs[i]
+            throw(DomainError(x, "Above interpolation range"))
+        end
+        i -= 1 # Treat right endpoint as part of rightmost interval
     end
 
     return i
 end
 
-function _pchip_index_bisectional_search(pchip::Interpolator, x)
-    N = lastindex(pchip.xs)
-    imin = firstindex(pchip.xs)
-    imax = N
+@inline function _findindex_custom(xs, x) # SciPy-like binary search from SimplePCHIP
+    imin = firstindex(xs)
+
+    if x < @inbounds xs[imin]
+        throw(DomainError(x, "Below interpolation range"))
+    end
+
+    imax = lastindex(xs)
+    xmax = @inbounds xs[imax]
+
+    if x > xmax
+        throw(DomainError(x, "Above interpolation range"))
+    elseif x == xmax
+        return imax - 1 # Treat right endpoint as part of rightmost interval
+    end
 
     i = imin + (imax - imin + 1)÷2
     while imin < imax
-        if x < @inbounds pchip.xs[i]
+        if x < @inbounds xs[i]
             imax = i - 1
-        elseif i < N && x >= @inbounds pchip.xs[i+1]
+        elseif x >= @inbounds xs[i+1]
             imin = i + 1
         else
             break

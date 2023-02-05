@@ -85,15 +85,22 @@ test_interpolation_is_piecewise_monotone(xs, ys)
 
 
 # Make sure the correct interval is identified
-p = Interpolator([1.0, 2.0, 3.0], [0.0, 0.0, 0.0])
-for search ∈ (PCHIPInterpolation._pchip_index_linear_search, PCHIPInterpolation._pchip_index_bisectional_search, (p,x) -> searchsortedlast(p.xs, x))
-    @test @inferred search(p, 1.0) == 1
-    @test @inferred search(p, 1.0 + eps(1.0)) == 1
-    @test @inferred search(p, 2.0 - eps(2.0)) == 1
-    @test @inferred search(p, 2.0) == 2
-    @test @inferred search(p, 2.0 + eps(2.0)) == 2
-    @test @inferred search(p, 3.0 - eps(3.0)) == 2
-    @test @inferred search(p, 3.0) == 3
+xs = 1.0:3.0
+for xs in (xs, collect(xs)) 
+    for search in (x -> (@inferred PCHIPInterpolation._findindex_base(xs, x)),
+                   x -> (@inferred PCHIPInterpolation._findindex_custom(xs, x)))
+        @test_throws DomainError search(0.0)
+        @test_throws DomainError search(1.0 - eps(1.0))
+        @test search(1.0) == 1
+        @test search(1.0 + eps(1.0)) == 1
+        @test search(2.0 - eps(2.0)) == 1
+        @test search(2.0) == 2
+        @test search(2.0 + eps(2.0)) == 2
+        @test search(3.0 - eps(3.0)) == 2
+        @test search(3.0) == 2
+        @test_throws DomainError search(3.0 + eps(3.0))
+        @test_throws DomainError search(4.0)
+    end
 end
 
 
