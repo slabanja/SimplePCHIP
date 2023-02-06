@@ -10,6 +10,10 @@ using ArgCheck: @argcheck
 using RecipesBase: @recipe, @series, RecipesBase
 
 
+_is_strictly_increasing(xs::AbstractVector) = all(a < b for (a,b) in zip(xs[begin:end-1], xs[begin+1:end]))
+_is_strictly_increasing(xs::AbstractRange) = step(xs) > 0
+
+
 struct Interpolator{Xs,Ys,Ds}
     xs::Xs
     ys::Ys
@@ -18,10 +22,7 @@ struct Interpolator{Xs,Ys,Ds}
     function Interpolator(xs::AbstractVector, ys::AbstractVector)
         @argcheck length(xs) ≥ 2
         @argcheck length(xs) == length(ys) DimensionMismatch
-        foldl(xs) do a,b
-            @argcheck a < b "xs must be strictly increasing"
-            return b
-        end
+        @argcheck _is_strictly_increasing(xs) "xs must be strictly increasing"
 
         ds = _initial_ds_scipy(xs, ys)
         new{typeof(xs),typeof(ys),typeof(ds)}(deepcopy(xs), deepcopy(ys), ds)
@@ -30,10 +31,7 @@ struct Interpolator{Xs,Ys,Ds}
     function Interpolator(xs::AbstractVector, ys::AbstractVector, _ds::AbstractVector)
         @argcheck length(xs) ≥ 2
         @argcheck length(xs) == length(ys) == length(_ds) DimensionMismatch
-        foldl(xs) do a,b
-            @argcheck a < b "xs must be strictly increasing"
-            return b
-        end
+        @argcheck _is_strictly_increasing(xs) "xs must be strictly increasing"
 
         new{typeof(xs),typeof(ys),typeof(_ds)}(deepcopy(xs), deepcopy(ys), deepcopy(_ds))
     end
