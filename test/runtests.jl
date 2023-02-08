@@ -108,24 +108,28 @@ end
 xs = [0.0,  1.2,  2.0,  5.0, 10.0, 11.0]
 ys = [2.0,  2.1,  1.0,  0.0,  0.0,  3.0]
 itp = @inferred Interpolator(xs, ys)
-@test @inferred itp.(xs) == ys
+@test itp.(xs) == ys
+@inferred itp(xs[begin])
 
 
 # Test interpolation with ranges
 xs = 1:10
 ys = 2:11
 itp = @inferred Interpolator(xs, ys)
-@test @inferred itp.(xs) == ys
+@test itp.(xs) == ys
+@inferred itp(xs[begin])
 
 xs = 2:101
 ys = collect(3:102)
 itp = @inferred Interpolator(xs, ys)
-@test @inferred itp.(xs) == ys
+@test itp.(xs) == ys
+@inferred itp(xs[begin])
 
 itp2 = @inferred Interpolator(collect(xs), ys)
 
 xs2 = [2.73, 3.14, 10, 15, 50, 60, 85]
-@test @inferred itp2.(xs) == itp.(xs)
+@test itp2.(xs2) == itp.(xs2)
+@inferred itp(xs2[begin])
 
 
 # Test interpolator with custom derivatives (non-monotonic)
@@ -139,13 +143,13 @@ itp = @inferred Interpolator(xs, ys, ds)
 
 # Test integration
 itp = @inferred Interpolator([1.0, 2.0, 3.0], [0.0, 0.0, 0.0])
-@test @inferred integrate(itp, 1, 3) == 0
-@test @inferred integrate(itp, 3, 1) == 0
-@test @inferred integrate(itp, 1, 2) == 0
-@test @inferred integrate(itp, 2, 3) == 0
-@test @inferred integrate(itp, 1.25, 2) == 0
-@test @inferred integrate(itp, 1, 2.25) == 0
-@test @inferred integrate(itp, 1.25, 2.25) == 0
+@test (@inferred integrate(itp, 1, 3)) == 0
+@test (@inferred integrate(itp, 3, 1)) == 0
+@test (@inferred integrate(itp, 1, 2)) == 0
+@test (@inferred integrate(itp, 2, 3)) == 0
+@test (@inferred integrate(itp, 1.25, 2)) == 0
+@test (@inferred integrate(itp, 1, 2.25)) == 0
+@test (@inferred integrate(itp, 1.25, 2.25)) == 0
 
 itp = @inferred Interpolator([1.0, 2.0, 3.0, 4.0], [4.0, 3.0, 2.0, 1.0])
 @test integrate(itp, 1, 4) == 3*3/2 + 3
@@ -156,18 +160,18 @@ itp = @inferred Interpolator([1.0, 2.0, 3.0, 4.0], [4.0, 3.0, 2.0, 1.0])
 
 # Test with ForwardDiff
 itp = @inferred Interpolator([1.0, 2.0, 3.0], [0.0, 0.0, 0.0])
-@test @inferred derivative(itp, 1) == 0
-@test @inferred derivative(itp, 2) == 0
-@test @inferred derivative(itp, 3) == 0
-@test @inferred derivative(itp, 1.25) == 0
-@test @inferred derivative(itp, 2.25) == 0
+@test (@inferred derivative(itp, 1)) == 0
+@test (@inferred derivative(itp, 2)) == 0
+@test (@inferred derivative(itp, 3)) == 0
+@test (@inferred derivative(itp, 1.25)) == 0
+@test (@inferred derivative(itp, 2.25)) == 0
 
 itp = @inferred Interpolator([1.0, 2.0, 3.0, 4.0], [4.0, 3.0, 2.0, 1.0])
-@test @inferred derivative(itp, 1) == -1
-@test @inferred derivative(itp, 2) == -1
-@test @inferred derivative(itp, 3) == -1
-@test @inferred derivative(itp, 4) == -1
-@test @inferred derivative(itp, 2.75) == -1
+@test (@inferred derivative(itp, 1)) == -1
+@test (@inferred derivative(itp, 2)) == -1
+@test (@inferred derivative(itp, 3)) == -1
+@test (@inferred derivative(itp, 4)) == -1
+@test (@inferred derivative(itp, 2.75)) == -1
 
 xs = [0.0,  1.2,  2.0,  5.0, 10.0, 11.0]
 ys = [2.0,  2.1,  1.0,  0.0,  0.0,  3.0]
