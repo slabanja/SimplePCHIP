@@ -87,8 +87,8 @@ test_interpolation_is_piecewise_monotone(xs, ys)
 # Make sure the correct interval is identified
 xs = 1.0:3.0
 for xs in (xs, collect(xs)) 
-    for search in (x -> (@inferred PCHIPInterpolation._findindex_base(xs, x)),
-                   x -> (@inferred PCHIPInterpolation._findindex_custom(xs, x)))
+    for search in (x -> (@inferred PCHIPInterpolation._findinterval_base(xs, x)),
+                   x -> (@inferred PCHIPInterpolation._findinterval_custom(xs, x)))
         @test_throws DomainError search(0.0)
         @test_throws DomainError search(1.0 - eps(1.0))
         @test search(1.0) == 1
@@ -107,25 +107,25 @@ end
 # Test interpolation
 xs = [0.0,  1.2,  2.0,  5.0, 10.0, 11.0]
 ys = [2.0,  2.1,  1.0,  0.0,  0.0,  3.0]
-p = @inferred Interpolator(xs, ys)
-@test @inferred p.(xs) == ys
+itp = @inferred Interpolator(xs, ys)
+@test @inferred itp.(xs) == ys
 
 
 # Test interpolation with ranges
 xs = 1:10
 ys = 2:11
-p = @inferred Interpolator(xs, ys)
-@test @inferred p.(xs) == ys
+itp = @inferred Interpolator(xs, ys)
+@test @inferred itp.(xs) == ys
 
 xs = 2:101
 ys = collect(3:102)
-p = @inferred Interpolator(xs, ys)
-@test @inferred p.(xs) == ys
+itp = @inferred Interpolator(xs, ys)
+@test @inferred itp.(xs) == ys
 
-p2 = @inferred Interpolator(collect(xs), ys)
+itp2 = @inferred Interpolator(collect(xs), ys)
 
 xs2 = [2.73, 3.14, 10, 15, 50, 60, 85]
-@test @inferred p2.(xs) == p.(xs)
+@test @inferred itp2.(xs) == itp.(xs)
 
 
 # Test interpolator with custom derivatives (non-monotonic)
@@ -138,56 +138,56 @@ itp = @inferred Interpolator(xs, ys, ds)
 
 
 # Test integration
-p = @inferred Interpolator([1.0, 2.0, 3.0], [0.0, 0.0, 0.0])
-@test @inferred integrate(p, 1, 3) == 0
-@test @inferred integrate(p, 3, 1) == 0
-@test @inferred integrate(p, 1, 2) == 0
-@test @inferred integrate(p, 2, 3) == 0
-@test @inferred integrate(p, 1.25, 2) == 0
-@test @inferred integrate(p, 1, 2.25) == 0
-@test @inferred integrate(p, 1.25, 2.25) == 0
+itp = @inferred Interpolator([1.0, 2.0, 3.0], [0.0, 0.0, 0.0])
+@test @inferred integrate(itp, 1, 3) == 0
+@test @inferred integrate(itp, 3, 1) == 0
+@test @inferred integrate(itp, 1, 2) == 0
+@test @inferred integrate(itp, 2, 3) == 0
+@test @inferred integrate(itp, 1.25, 2) == 0
+@test @inferred integrate(itp, 1, 2.25) == 0
+@test @inferred integrate(itp, 1.25, 2.25) == 0
 
-p = @inferred Interpolator([1.0, 2.0, 3.0, 4.0], [4.0, 3.0, 2.0, 1.0])
-@test integrate(p, 1, 4) == 3*3/2 + 3
-@test integrate(p, 1, 2) + integrate(p, 2, 4) == integrate(p, 1, 4)
-@test integrate(p, 1, 2.75) + integrate(p, 2.75, 4) == integrate(p, 1, 4)
-@test integrate(p, 3, 1) == -integrate(p, 1, 3)
+itp = @inferred Interpolator([1.0, 2.0, 3.0, 4.0], [4.0, 3.0, 2.0, 1.0])
+@test integrate(itp, 1, 4) == 3*3/2 + 3
+@test integrate(itp, 1, 2) + integrate(itp, 2, 4) == integrate(itp, 1, 4)
+@test integrate(itp, 1, 2.75) + integrate(itp, 2.75, 4) == integrate(itp, 1, 4)
+@test integrate(itp, 3, 1) == -integrate(itp, 1, 3)
 
 
 # Test with ForwardDiff
-p = @inferred Interpolator([1.0, 2.0, 3.0], [0.0, 0.0, 0.0])
-@test @inferred derivative(p, 1) == 0
-@test @inferred derivative(p, 2) == 0
-@test @inferred derivative(p, 3) == 0
-@test @inferred derivative(p, 1.25) == 0
-@test @inferred derivative(p, 2.25) == 0
+itp = @inferred Interpolator([1.0, 2.0, 3.0], [0.0, 0.0, 0.0])
+@test @inferred derivative(itp, 1) == 0
+@test @inferred derivative(itp, 2) == 0
+@test @inferred derivative(itp, 3) == 0
+@test @inferred derivative(itp, 1.25) == 0
+@test @inferred derivative(itp, 2.25) == 0
 
-p = @inferred Interpolator([1.0, 2.0, 3.0, 4.0], [4.0, 3.0, 2.0, 1.0])
-@test @inferred derivative(p, 1) == -1
-@test @inferred derivative(p, 2) == -1
-@test @inferred derivative(p, 3) == -1
-@test @inferred derivative(p, 4) == -1
-@test @inferred derivative(p, 2.75) == -1
+itp = @inferred Interpolator([1.0, 2.0, 3.0, 4.0], [4.0, 3.0, 2.0, 1.0])
+@test @inferred derivative(itp, 1) == -1
+@test @inferred derivative(itp, 2) == -1
+@test @inferred derivative(itp, 3) == -1
+@test @inferred derivative(itp, 4) == -1
+@test @inferred derivative(itp, 2.75) == -1
 
 xs = [0.0,  1.2,  2.0,  5.0, 10.0, 11.0]
 ys = [2.0,  2.1,  1.0,  0.0,  0.0,  3.0]
-p = @inferred Interpolator(xs, ys)
+itp = @inferred Interpolator(xs, ys)
 for x ∈ [0, 1, 3.14, 5, 9, 11]
-    @test derivative(b -> integrate(p, 0, b), x) ≈ p(x)
-    @test derivative(b -> integrate(p, 1.1, b), x) ≈ p(x)
-    @test derivative(b -> integrate(p, 11, b), x) ≈ p(x)
+    @test derivative(b -> integrate(itp, 0, b), x) ≈ itp(x)
+    @test derivative(b -> integrate(itp, 1.1, b), x) ≈ itp(x)
+    @test derivative(b -> integrate(itp, 11, b), x) ≈ itp(x)
 end
 
 
 # Test out of domain
-p = Interpolator([1.0, 2.0, 3.0, 4.0], [4.0, 3.0, 2.0, 1.0])
-@test p(1) == 4
-@test p(4) == 1
-@test_throws DomainError p(1 - 1e-6)
-@test_throws DomainError p(4 + 1e-6)
-@test_throws DomainError integrate(p, 1 - 1e-6, 4 + 1e-6)
-@test_throws DomainError integrate(p, 1 - 1e-6, 3)
-@test_throws DomainError integrate(p, 2, 4 + 1e-6)
+itp = Interpolator([1.0, 2.0, 3.0, 4.0], [4.0, 3.0, 2.0, 1.0])
+@test itp(1) == 4
+@test itp(4) == 1
+@test_throws DomainError itp(1 - 1e-6)
+@test_throws DomainError itp(4 + 1e-6)
+@test_throws DomainError integrate(itp, 1 - 1e-6, 4 + 1e-6)
+@test_throws DomainError integrate(itp, 1 - 1e-6, 3)
+@test_throws DomainError integrate(itp, 2, 4 + 1e-6)
 
 # Test too short
 @test_throws ArgumentError Interpolator([1.0], [4.0])
@@ -204,9 +204,9 @@ p = Interpolator([1.0, 2.0, 3.0, 4.0], [4.0, 3.0, 2.0, 1.0])
 # Test plot recipe
 xs = [0.0,  1.2,  2.0,  5.0, 10.0, 11.0]
 ys = [2.0,  2.1,  1.0,  0.0,  0.0,  3.0]
-p = @inferred Interpolator(xs, ys)
-plot(p)
-plot(p, markershape=:auto)
+itp = @inferred Interpolator(xs, ys)
+plot(itp)
+plot(itp, markershape=:auto)
 
 
 # Regression test for https://github.com/gerlero/PCHIPInterpolation.jl/issues/8
@@ -222,9 +222,9 @@ itp = Interpolator(x, x)
 
 # Regression test for https://github.com/gerlero/PCHIPInterpolation.jl/issues/11
 v = [1, 2, 3]
-p = Interpolator(v, v)
-xs = copy(p.xs)
-ys = copy(p.ys)
+itp = Interpolator(v, v)
+xs = copy(itp.xs)
+ys = copy(itp.ys)
 v .= -1
-@test p.xs == xs
-@test p.ys == ys
+@test itp.xs == xs
+@test itp.ys == ys
