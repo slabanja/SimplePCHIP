@@ -197,7 +197,7 @@ end
     return _integrate(itp, a, b, _findinterval(itp, a), _findinterval(itp, b))
 end
 
-@inline integrate(itp, a, b) = _integrate(itp, a, b)
+@inline integrate(itp::Interpolator, a::Number, b::Number) = _integrate(itp, a, b)
 
 
 @recipe function _(itp::Interpolator; markershape=:none) \
