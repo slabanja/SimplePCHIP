@@ -232,3 +232,14 @@ ys = copy(itp.ys)
 v .= -1
 @test itp.xs == xs
 @test itp.ys == ys
+
+# Test correctness of _pchip_ds_scipy implementation following https://github.com/gerlero/PCHIPInterpolation.jl/issues/31
+# Tests that the interpolated values are the same as SciPy
+xs = [0.0,  1.2,  2.0,  5.0, 10.0, 11.0]
+ys = [2.0,  2.1,  1.0,  0.0,  0.0,  3.0]
+
+xps = [0.6, 1.6, 3.5, 7.5, 10.5]
+yps = [2.08750000, 1.61081474, 0.27194471, 0.00000000, 1.06250000]
+
+itp = @inferred Interpolator(xs, ys)
+@test itp.(xps) ≈ yps atol=1e-8

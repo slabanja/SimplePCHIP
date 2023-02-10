@@ -36,8 +36,8 @@ function _pchip_ds_scipy(xs::AbstractVector, ys::AbstractVector)
             if sign(Δl) != sign(Δr) || Δl ≈ 0.0 || Δr ≈ 0.0
                 ds[i] = 0.0
             else
-                wl = 2hl + hr
-                wr = hl + 2hr
+                wl = 2hr + hl
+                wr = hr + 2hl
                 ds[i] = (wl + wr) / (wl/Δl + wr/Δr)
             end
             Δl = Δr
