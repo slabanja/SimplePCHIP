@@ -81,6 +81,8 @@ end
 
 
 @inline function _findinterval_base(xs, x) # Generic binary search from Julia Base
+    isnan(x) && return lastindex(xs) - 1 # searchsortedlast fails with NaN in Julia 1.5
+    
     i = searchsortedlast(xs, x)
 
     if i < firstindex(xs)
@@ -88,7 +90,7 @@ end
     end
 
     if i == lastindex(xs)
-        if !isnan(x) && x != @inbounds xs[i]
+        if x != @inbounds xs[i]
             throw(DomainError(x, "Above interpolation range"))
         end
         i -= 1 # Treat right endpoint as part of rightmost interval
