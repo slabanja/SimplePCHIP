@@ -1,13 +1,12 @@
 cff-version: 1.2.0
-message: "If you use this software, please cite it as below."
 authors:
-- family-names: "Gerlero"
-  given-names: "Gabriel Santiago"
-  orcid: "https://orcid.org/0000-0002-5138-0328"
-- family-names: "Kler"
-  given-names: "Pablo Alejandro"
-  orcid: "https://orcid.org/0000-0003-4217-698X"
-title: "PCHIPInterpolation.jl"
+- family-names: Gerlero
+  given-names: Gabriel S.
+  orcid: https://orcid.org/0000-0002-5138-0328
+- family-names: Kler
+  given-names: Pablo A.
+  orcid: https://orcid.org/0000-0003-4217-698X
+title: PCHIPInterpolation.jl
 type: software
-url: "https://github.com/gerlero/PCHIPInterpolation.jl"
+url: https://github.com/gerlero/PCHIPInterpolation.jl
 doi: 10.5281/zenodo.5711235
