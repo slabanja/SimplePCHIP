@@ -81,6 +81,8 @@ end
 
 
 @inline function _findinterval_base(xs, x) # Generic binary search from Julia Base
+    isnan(x) && return lastindex(xs) - 1 # searchsortedlast fails with NaN in Julia 1.5
+    
     i = searchsortedlast(xs, x)
 
     if i < firstindex(xs)
@@ -149,7 +151,6 @@ end
 @inline function _evaluate(itp::Interpolator, x, i)
     x1 = _x(itp, Val(:begin), i)
     x2 = _x(itp, Val(:end), i)
-    @assert x1 ≤ x ≤ x2
     h = x2 - x1
 
     y1 = _evaluate(itp, Val(:begin), i)

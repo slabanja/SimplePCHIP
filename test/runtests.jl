@@ -100,6 +100,7 @@ for xs in (xs, collect(xs))
         @test search(3.0) == 2
         @test_throws DomainError search(3.0 + eps(3.0))
         @test_throws DomainError search(4.0)
+        @test search(NaN) in (1, 2)
     end
 end
 
@@ -192,6 +193,21 @@ itp = Interpolator([1.0, 2.0, 3.0, 4.0], [4.0, 3.0, 2.0, 1.0])
 @test_throws DomainError integrate(itp, 1 - 1e-6, 4 + 1e-6)
 @test_throws DomainError integrate(itp, 1 - 1e-6, 3)
 @test_throws DomainError integrate(itp, 2, 4 + 1e-6)
+
+# Test NaN propagation
+itp = Interpolator(1.0:4.0, [4.0, 3.0, 2.0, 1.0])
+@test isnan(@inferred itp(NaN))
+@test isnan(@inferred integrate(itp, 1, NaN))
+@test isnan(@inferred integrate(itp, NaN, 4))
+@test isnan(@inferred integrate(itp, NaN, NaN))
+@test isnan(@inferred derivative(itp, NaN))
+
+itp2 = Interpolator(collect(1.0:4.0), [4.0, 3.0, 2.0, 1.0])
+@test isnan(@inferred itp2(NaN))
+@test isnan(@inferred integrate(itp2, 1, NaN))
+@test isnan(@inferred integrate(itp2, NaN, 4))
+@test isnan(@inferred integrate(itp2, NaN, NaN))
+@test isnan(@inferred derivative(itp2, NaN))
 
 # Test too short
 @test_throws ArgumentError Interpolator([1.0], [4.0])
