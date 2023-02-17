@@ -88,7 +88,7 @@ end
     end
 
     if i == lastindex(xs)
-        if x != @inbounds xs[i]
+        if !isnan(x) && x != @inbounds xs[i]
             throw(DomainError(x, "Above interpolation range"))
         end
         i -= 1 # Treat right endpoint as part of rightmost interval
@@ -149,7 +149,6 @@ end
 @inline function _evaluate(itp::Interpolator, x, i)
     x1 = _x(itp, Val(:begin), i)
     x2 = _x(itp, Val(:end), i)
-    @assert x1 ≤ x ≤ x2
     h = x2 - x1
 
     y1 = _evaluate(itp, Val(:begin), i)
