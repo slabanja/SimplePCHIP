@@ -4,76 +4,56 @@ using Test
 using ForwardDiff: derivative
 using Plots: plot
 
-function test_interpolation_is_piecewise_monotone(xs, ys, N=10000)
-    itp = @inferred Interpolator(xs, ys)
-    for (i,j) in monotone_intervals(ys)
-        @test is_monotone([itp(x) for x ∈ range(xs[i], stop=xs[j], length=N)])
+function test_interpolation_is_piecewise_monotone(itp::Interpolator, N=10000)
+    for i in eachindex(itp.xs)[begin:end-1]
+        xsi = range(xs[i], stop=xs[i+1], length=N)
+        ysi = itp.(xsi)
+
+        @test first(ysi) == itp.ys[i]
+        @test last(ysi) == itp.ys[i+1]
+
+        @test is_monotone(ysi)
     end
 end
 
-function monotone_intervals(xs)
-    N = length(xs)
-    function _monotone_intervals(ch :: Channel)
-        up_down = 0
-        previous_i = 1
-        for i = 1:N-1
-            current_x, next_x = xs[i:i+1]
-            if up_down != 0  &&  up_down*current_x > up_down*next_x
-                put!(ch, (previous_i, i))
-                previous_i = i
-                up_down = 0
-            end
-            if up_down == 0  &&  current_x != next_x
-                up_down = current_x < next_x ? 1 : -1
-            end
-        end
-        put!(ch, (previous_i, N))
-    end
-
-    [interval for interval in Channel(_monotone_intervals)]
-end
-
-function is_monotone(zs)
-    (all(is_approx_le(z, znext) for (z,znext) = zip(zs[1:end-1], zs[2:end]))
-    || all(is_approx_le(znext, z) for (z,znext) = zip(zs[1:end-1], zs[2:end])))
-end
-
-function is_approx_le(a, b)
-    a < b || a ≈ b
+function is_monotone(ys)
+    direction = first(ys) ≈ last(ys) ? 0 : sign(last(ys) - first(ys))
+    return all(ya ≈ yb || sign(yb - ya) == direction for (ya,yb) in zip(ys[begin:end-1], ys[begin+1:end]))
 end
 
 xs = [0.0, 1.0]
 ys = [1.0, 1.0]
-test_interpolation_is_piecewise_monotone(xs, ys)
+test_interpolation_is_piecewise_monotone(@inferred Interpolator(xs, ys))
 
 xs = [0.0, 1.0]
 ys = [1.0, 0.0]
-test_interpolation_is_piecewise_monotone(xs, ys)
+test_interpolation_is_piecewise_monotone(@inferred Interpolator(xs, ys))
 
 xs = [0.0, 1.0]
 ys = [0.0, 1.0]
-test_interpolation_is_piecewise_monotone(xs, ys)
+test_interpolation_is_piecewise_monotone(@inferred Interpolator(xs, ys))
 
 xs = [0.0, 1.0, 2.0, 100.0]
 ys = [0.0, 0.0, 1.0,   1.0]
-test_interpolation_is_piecewise_monotone(xs, ys)
+test_interpolation_is_piecewise_monotone(@inferred Interpolator(xs, ys))
 
 xs = [1.0, 2.0, 5.0, 6.0, 10.0, 22.0]
 ys = [0.0, 1.0, 0.0, 1.0,  0.0,  1.0]
-test_interpolation_is_piecewise_monotone(xs, ys)
+test_interpolation_is_piecewise_monotone(@inferred Interpolator(xs, ys))
 
 xs = [   0.0, 10.0, 10000.0]
 ys = [-100.0,  1.2,     1.1]
-test_interpolation_is_piecewise_monotone(xs, ys)
+test_interpolation_is_piecewise_monotone(@inferred Interpolator(xs, ys))
 
 xs = range(0, stop=2π, length=5000)
 ys = sin.(xs)
-test_interpolation_is_piecewise_monotone(collect(xs), ys)
+test_interpolation_is_piecewise_monotone(@inferred Interpolator(xs, ys))
+test_interpolation_is_piecewise_monotone(@inferred Interpolator(collect(xs), ys))
 
 # Example data from Fritsch and Carlson, SIAM J. NUMER. ANAL. 17 (1980) 238-246.
 xs = [ 0.0,  2,  3,  5,  6,  8,  9,   11, 12, 14, 15]
 ys = [10.0, 10, 10, 10, 10, 10, 10.5, 15, 50, 60, 85]
-test_interpolation_is_piecewise_monotone(xs, ys)
+test_interpolation_is_piecewise_monotone(@inferred Interpolator(xs, ys))
 
 
 # Test the test helper functions
