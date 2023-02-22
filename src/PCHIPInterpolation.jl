@@ -2,8 +2,6 @@ module PCHIPInterpolation
 
 export Interpolator, integrate
 
-using RecipesBase: @recipe, @series, RecipesBase
-
 
 _is_strictly_increasing(xs::AbstractVector) = all(a < b for (a,b) in zip(xs[begin:end-1], xs[begin+1:end]))
 _is_strictly_increasing(xs::AbstractRange) = step(xs) > 0
@@ -202,21 +200,8 @@ end
 @inline integrate(itp::Interpolator, a::Number, b::Number) = _integrate(itp, a, b)
 
 
-@recipe function _(itp::Interpolator; markershape=:none) \
-    @series begin
-        markershape := :none
-        plotdensity = clamp(10*length(itp.xs), 1000, 100000)
-        x = range(first(itp.xs), last(itp.xs), length=plotdensity)
-        return x, itp.(x)
-    end
-    if markershape !== :none
-        @series begin
-            seriestype := :scatter
-            primary := false
-            return itp.xs, itp.ys
-        end
-    end
-    return nothing
+if !isdefined(Base, :get_extension) # For compatibility with Julia < 1.9
+    include("../ext/PCHIPInterpolationRecipesBaseExt.jl")
 end
 
 end
