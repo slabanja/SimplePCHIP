@@ -88,6 +88,16 @@ for xs in (xs, collect(xs))
     end
 end
 
+# Test interval search with vectors of length < 2
+for xs in (1.0:1.0, collect(1.0:1.0), 1.0:0.0, collect(1.0:0.0))
+    for search in (x -> (@inferred PCHIPInterpolation._findinterval_base(xs, x)),
+                   x -> (@inferred PCHIPInterpolation._findinterval_custom(xs, x)))
+        @test_throws BoundsError search(0.0)
+        @test_throws BoundsError search(1.0)
+        @test_throws BoundsError search(2.0)
+    end
+end
+
 
 # Test interpolation
 xs = [0.0,  1.2,  2.0,  5.0, 10.0, 11.0]
