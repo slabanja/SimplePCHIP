@@ -136,8 +136,8 @@ end
 
 @inline _x(::Interpolator, x) = x
 @inline _x(itp::Interpolator, x, _) = _x(itp, x)
-@inline _x(itp::Interpolator, ::Val{:begin}, i) = @inbounds itp.xs[i]
-@inline _x(itp::Interpolator, ::Val{:end}, i) = @inbounds itp.xs[i+1]
+Base.@propagate_inbounds _x(itp::Interpolator, ::Val{:begin}, i) = itp.xs[i]
+Base.@propagate_inbounds _x(itp::Interpolator, ::Val{:end}, i) = itp.xs[i+1]
 
 @inline _evaluate(itp::Interpolator, ::Val{:begin}, i) = itp.ys[i]
 @inline _evaluate(itp::Interpolator, ::Val{:end}, i) = itp.ys[i+1]
@@ -148,7 +148,7 @@ end
 @inline _ϕ(t) = 3t^2 - 2t^3
 @inline _ψ(t) = t^3 - t^2
 
-@inline function _evaluate(itp::Interpolator, x, i)
+Base.@propagate_inbounds function _evaluate(itp::Interpolator, x, i)
     x1 = _x(itp, Val(:begin), i)
     x2 = _x(itp, Val(:end), i)
     h = x2 - x1
@@ -165,18 +165,18 @@ end
            + d2*h * _ψ((x-x1)/h))
 end
 
-@inline _evaluate(itp::Interpolator, x) = _evaluate(itp, x, _findinterval(itp, x))
+@inline _evaluate(itp::Interpolator, x) = @inbounds _evaluate(itp, x, _findinterval(itp, x))
 
 @inline (itp::Interpolator)(x::Number) = _evaluate(itp, x)
 
 
-@inline function _integrate(itp::Interpolator, a, b, i)
+Base.@propagate_inbounds function _integrate(itp::Interpolator, a, b, i)
     a_ = _x(itp, a, i)
     b_ = _x(itp, b, i)
     return (b_ - a_)/6*(_evaluate(itp, a, i) + 4*_evaluate(itp, (a_ + b_)/2, i) + _evaluate(itp, b, i)) # Simpson's rule
 end
 
-@inline function _integrate(itp::Interpolator, a, b, i, j)
+Base.@propagate_inbounds function _integrate(itp::Interpolator, a, b, i, j)
     if i == j
         return _integrate(itp, a, b, i)
     end
@@ -195,7 +195,7 @@ end
         return -_integrate(itp, b, a)
     end
 
-    return _integrate(itp, a, b, _findinterval(itp, a), _findinterval(itp, b))
+    return @inbounds _integrate(itp, a, b, _findinterval(itp, a), _findinterval(itp, b))
 end
 
 @inline integrate(itp::Interpolator, a::Number, b::Number) = _integrate(itp, a, b)
