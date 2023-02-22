@@ -81,16 +81,16 @@ end
 
 
 @inline function _findinterval_base(xs, x) # Generic binary search from Julia Base
-    isnan(x) && return lastindex(xs) - 1 # searchsortedlast fails with NaN in Julia 1.5
-    
-    i = searchsortedlast(xs, x)
+    @boundscheck length(xs) ≥ 2 || throw(BoundsError(xs))
+
+    i = !isnan(x) ? searchsortedlast(xs, x) : lastindex(xs) # searchsortedlast fails with NaN in Julia 1.5
 
     if i < firstindex(xs)
         throw(DomainError(x, "Below interpolation range"))
     end
 
     if i == lastindex(xs)
-        if x != @inbounds xs[i]
+        if x > @inbounds xs[i]
             throw(DomainError(x, "Above interpolation range"))
         end
         i -= 1 # Treat right endpoint as part of rightmost interval
@@ -100,6 +100,8 @@ end
 end
 
 @inline function _findinterval_custom(xs, x) # SciPy-like binary search from SimplePCHIP
+    @boundscheck length(xs) ≥ 2 || throw(BoundsError(xs))
+
     imin = firstindex(xs)
 
     if x < @inbounds xs[imin]
