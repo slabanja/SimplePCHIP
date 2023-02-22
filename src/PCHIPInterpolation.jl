@@ -2,7 +2,6 @@ module PCHIPInterpolation
 
 export Interpolator, integrate
 
-using ArgCheck: @argcheck
 using RecipesBase: @recipe, @series, RecipesBase
 
 
@@ -55,9 +54,9 @@ struct Interpolator{Xs,Ys,Ds}
     ds::Ds
 
     function Interpolator(xs::AbstractVector, ys::AbstractVector)
-        @argcheck length(xs) ≥ 2
-        @argcheck length(xs) == length(ys) DimensionMismatch
-        @argcheck _is_strictly_increasing(xs) "xs must be strictly increasing"
+        length(xs) ≥ 2 || throw(ArgumentError("xs must have at least 2 elements"))
+        _is_strictly_increasing(xs) || throw(ArgumentError("xs must be strictly increasing"))
+        length(xs) == length(ys) || throw(DimensionMismatch("xs and ys must have the same length"))
 
         xs = deepcopy(xs)
         ys = deepcopy(ys)
@@ -67,9 +66,9 @@ struct Interpolator{Xs,Ys,Ds}
     end
 
     function Interpolator(xs::AbstractVector, ys::AbstractVector, _ds::AbstractVector)
-        @argcheck length(xs) ≥ 2
-        @argcheck length(xs) == length(ys) == length(_ds) DimensionMismatch
-        @argcheck _is_strictly_increasing(xs) "xs must be strictly increasing"
+        length(xs) ≥ 2 || throw(ArgumentError("xs must have at least 2 elements"))
+        _is_strictly_increasing(xs) || throw(ArgumentError("xs must be strictly increasing"))
+        length(xs) == length(ys) == length(_ds) || throw(DimensionMismatch("xs, ys and _ds must have the same length"))
 
         xs = deepcopy(xs)
         ys = deepcopy(ys)
