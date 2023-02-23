@@ -63,14 +63,14 @@ struct Interpolator{Xs,Ys,Ds}
         new{typeof(xs),typeof(ys),typeof(ds)}(xs, ys, ds)
     end
 
-    function Interpolator(xs::AbstractVector, ys::AbstractVector, _ds::AbstractVector)
+    function Interpolator(xs::AbstractVector, ys::AbstractVector, ds::AbstractVector)
         length(xs) ≥ 2 || throw(ArgumentError("xs must have at least 2 elements"))
         _is_strictly_increasing(xs) || throw(ArgumentError("xs must be strictly increasing"))
-        length(xs) == length(ys) == length(_ds) || throw(DimensionMismatch("xs, ys and _ds must have the same length"))
+        length(xs) == length(ys) == length(ds) || throw(DimensionMismatch("xs, ys and ds must have the same length"))
 
         xs = deepcopy(xs)
         ys = deepcopy(ys)
-        ds = deepcopy(_ds)
+        ds = deepcopy(ds)
 
         new{typeof(xs),typeof(ys),typeof(ds)}(xs, ys, ds)
     end
