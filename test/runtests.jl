@@ -3,6 +3,7 @@ using Test
 
 using ForwardDiff: derivative
 using Plots: plot
+using QuadGK: quadgk
 
 
 function is_monotone(ys)
@@ -151,6 +152,15 @@ itp = @inferred Interpolator([1.0, 2.0, 3.0, 4.0], [4.0, 3.0, 2.0, 1.0])
 @test integrate(itp, 1, 2) + integrate(itp, 2, 4) == integrate(itp, 1, 4)
 @test integrate(itp, 1, 2.75) + integrate(itp, 2.75, 4) == integrate(itp, 1, 4)
 @test integrate(itp, 3, 1) == -integrate(itp, 1, 3)
+
+# Example data from Fritsch and Carlson, SIAM J. NUMER. ANAL. 17 (1980) 238-246.
+xs = [ 0.0,  2,  3,  5,  6,  8,  9,   11, 12, 14, 15]
+ys = [10.0, 10, 10, 10, 10, 10, 10.5, 15, 50, 60, 85]
+itp = @inferred Interpolator(xs, ys)
+for a in 0:1.5:15, b in 0:1.5:15
+    integral, err = quadgk(itp, a, b)
+    @test (@inferred integrate(itp, a, b)) ≈ integral atol=err
+end
 
 
 # Test with ForwardDiff
