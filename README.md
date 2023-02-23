@@ -55,3 +55,7 @@ using ForwardDiff
 
 dydx = ForwardDiff.derivative(itp, 1.5)
 ```
+
+### Generic cubic Hermite spline
+
+A different `Interpolator` constructor also exists that takes the derivative values at the interpolation points as a third argument. This method will create a generic [cubic Hermite spline](https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.CubicHermiteSpline.html), which will not preserve monotonicity in general.
