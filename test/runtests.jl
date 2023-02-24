@@ -38,6 +38,8 @@ end
         @testset "valid xs" begin
             xs = 1.0:3.0
             for xs in (xs, collect(xs)) 
+                @assert length(xs) == 3
+                @assert PCHIPInterpolation._is_strictly_increasing(xs)
                 for search in (x -> (@inferred PCHIPInterpolation._findinterval_base(xs, x)),
                             x -> (@inferred PCHIPInterpolation._findinterval_custom(xs, x)))
                     @test_throws DomainError search(0.0)
@@ -51,20 +53,40 @@ end
                     @test search(3.0) == 2
                     @test_throws DomainError search(3.0 + eps(3.0))
                     @test_throws DomainError search(4.0)
-                    @test search(NaN) in (1, 2)
+                    @test search(NaN) in 1:2
                 end
             end
         end
-        @testset "xs too short" begin
-            for xs in (1.0:1.0, collect(1.0:1.0), 1.0:0.0, collect(1.0:0.0))
-                @assert length(xs) < 2
-                for search in (x -> (@inferred PCHIPInterpolation._findinterval_base(xs, x)),
-                               x -> (@inferred PCHIPInterpolation._findinterval_custom(xs, x)))
-                    @test_throws BoundsError search(-1.0)
-                    @test_throws BoundsError search(0.0)
-                    @test_throws BoundsError search(1.0)
-                    @test_throws BoundsError search(2.0)
-                    @test_throws BoundsError search(NaN)
+
+        @testset "bad xs" begin
+            @testset "xs too short" begin
+                for xs in (1.0:1.0, collect(1.0:1.0), 1.0:0.0, collect(1.0:0.0))
+                    @assert length(xs) < 2
+                    for search in (x -> (@inferred PCHIPInterpolation._findinterval_base(xs, x)),
+                                   x -> (@inferred PCHIPInterpolation._findinterval_custom(xs, x)))
+                        for x in (-1.0, 0.0, 1.0, 2.0, NaN)
+                            @test_throws BoundsError search(x) # Must throw (no valid intervals exist)
+                        end
+                    end
+                end
+            end
+
+            @testset "xs not strictly increasing" begin
+                for xs in (3:-1:1, collect(3:-1:1), ones(3), [1, 2, 2])
+                    @assert length(xs) == 3
+                    @assert !PCHIPInterpolation._is_strictly_increasing(xs)
+                    for search in (x -> (@inferred PCHIPInterpolation._findinterval_base(xs, x)),
+                                   x -> (@inferred PCHIPInterpolation._findinterval_custom(xs, x)))
+                        for x in (0.0, 1.0, 2.0, 3.0, 4.0, NaN)
+                            try
+                                i = search(x)
+                                @test i in 1:2 # May return any existing interval, even if wrong
+                            catch e
+                                @test e isa DomainError # Or, it may throw
+                                continue
+                            end
+                        end
+                    end
                 end
             end
         end
