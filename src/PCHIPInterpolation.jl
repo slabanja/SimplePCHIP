@@ -7,43 +7,45 @@ _is_strictly_increasing(xs::AbstractVector) = all(a < b for (a,b) in zip(xs[begi
 _is_strictly_increasing(xs::AbstractRange) = step(xs) > 0
 
 function _pchip_edge_derivative(h1, h2, Δ1, Δ2)
-    d = ((2h1 + h2)*Δ1 - h2*Δ2) / (h1 + h2)
+    d = ((2h1 + h2)*Δ1 - h2*Δ2)/(h1 + h2)
     if sign(d) != sign(Δ1)
-        d = 0.0
-    elseif sign(Δ1) != sign(Δ2)  &&  abs(d) > abs(3Δ1)
+        d = zero(d)
+    elseif sign(Δ1) != sign(Δ2) && abs(d) > abs(3Δ1)
         d = 3Δ1
     end
-    d
+    return d
 end
 
 function _pchip_ds_scipy(xs::AbstractVector, ys::AbstractVector)
-    h(i) = xs[i+1]-xs[i]
-    Δ(i) = (ys[i+1]-ys[i]) / h(i)
+    h(i) = xs[i+1] - xs[i]
+    Δ(i) = (ys[i+1] - ys[i])/h(i)
 
-    N = length(xs)
     ds = similar(ys./xs)
-    if N == 2
-        ds[:] .= Δ(1)
+
+    is = eachindex(xs, ys, ds)
+
+    if length(ds) == 2
+        ds[:] .= Δ(first(is))
     else
-        Δl = Δ(1)
-        hl = h(1)
-        for i ∈ 2:N-1
+        Δl = Δ(first(is))
+        hl = h(first(is))
+        for i in is[begin+1:end-1]
             Δr = Δ(i)
             hr = h(i)
-            if sign(Δl) != sign(Δr) || Δl ≈ 0.0 || Δr ≈ 0.0
-                ds[i] = 0.0
+            if sign(Δl) != sign(Δr) || Δl ≈ zero(Δl) || Δr ≈ zero(Δr)
+                ds[i] = zero(eltype(ds))
             else
                 wl = 2hr + hl
                 wr = hr + 2hl
-                ds[i] = (wl + wr) / (wl/Δl + wr/Δr)
+                ds[i] = (wl + wr)/(wl/Δl + wr/Δr)
             end
             Δl = Δr
             hl = hr
         end
-        ds[1] = _pchip_edge_derivative(h(1), h(2), Δ(1), Δ(2))
-        ds[N] = _pchip_edge_derivative(h(N-1), h(N-2), Δ(N-1), Δ(N-2))
+        ds[begin] = _pchip_edge_derivative(h(first(is)), h(first(is)+1), Δ(first(is)), Δ(first(is)+1))
+        ds[end] = _pchip_edge_derivative(h(last(is)-1), h(last(is)-2), Δ(last(is)-1), Δ(last(is)-2))
     end
-    ds
+    return ds
 end
 
 struct Interpolator{Xs,Ys,Ds}
