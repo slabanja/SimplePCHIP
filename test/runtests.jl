@@ -4,7 +4,7 @@ using Test
 using ForwardDiff: derivative
 using Plots: plot
 using QuadGK: quadgk
-using OffsetArrays: OffsetArray
+using OffsetArrays: OffsetVector
 
 
 function is_monotone(ys)
@@ -268,8 +268,8 @@ end
         xs = [0.0,  1.2,  2.0,  5.0, 10.0, 11.0]
         ys = [2.0,  2.1,  1.0,  0.0,  0.0,  3.0]
 
-        oxs = OffsetArray(xs, -1)
-        oys = OffsetArray(ys, -1)
+        oxs = OffsetVector(xs, -1)
+        oys = OffsetVector(ys, -1)
         @assert firstindex(oxs) == firstindex(oys) == 0
 
         @testset "valid" begin
