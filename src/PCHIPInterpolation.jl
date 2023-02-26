@@ -79,7 +79,7 @@ struct Interpolator{Xs,Ys,Ds}
 end
 
 
-@inline function _findinterval_base(xs, x) # Generic binary search from Julia Base
+@inline function _findinterval_base(xs::AbstractVector, x) # Generic binary search from Julia Base
     @boundscheck length(xs) ≥ 2 || throw(BoundsError(xs))
 
     VERSION < v"1.6.2" && isnan(x) && return lastindex(xs) - 1
@@ -100,7 +100,7 @@ end
     return i
 end
 
-@inline function _findinterval_custom(xs, x) # SciPy-like binary search from SimplePCHIP
+@inline function _findinterval_custom(xs::AbstractVector, x) # SciPy-like binary search from SimplePCHIP
     @boundscheck length(xs) ≥ 2 || throw(BoundsError(xs))
 
     imin = firstindex(xs)
