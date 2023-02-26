@@ -4,6 +4,7 @@ using Test
 using ForwardDiff: derivative
 using Plots: plot
 using QuadGK: quadgk
+using OffsetArrays: OffsetArray
 
 
 function is_monotone(ys)
@@ -282,6 +283,45 @@ end
         itp = @inferred Interpolator(xs, ys)
         plot(itp)
         plot(itp, markershape=:auto)
+    end
+
+    @testset "OffsetArrays" begin
+        xs = [0.0,  1.2,  2.0,  5.0, 10.0, 11.0]
+        ys = [2.0,  2.1,  1.0,  0.0,  0.0,  3.0]
+
+        oxs = OffsetArray(xs, -1)
+        oys = OffsetArray(ys, -1)
+        @assert firstindex(oxs) == firstindex(oys) == 0
+
+        @testset "valid" begin
+            oitp = Interpolator(oxs, oys)
+            itp = Interpolator(xs, ys)
+
+            @test oitp(0) == itp(0)
+            @test oitp(1) == itp(1)
+            @test oitp(3.0) == itp(3.0)
+            @test oitp(5.0) == itp(5.0)
+            @test oitp(11.0) == itp(11.0)
+            @test integrate(oitp, 1.5, 6.5) == integrate(itp, 1.5, 6.5)
+            @test integrate(oitp, 5, 11) == integrate(itp, 5, 11)
+            @test integrate(oitp, 0, 11) == integrate(itp, 0, 11)
+        end
+
+        @testset "out of domain" begin
+            oitp = Interpolator(oxs, oys)
+
+            @test_throws DomainError oitp(0.0 - eps(0.0))
+            @test_throws DomainError oitp(11.0 + eps(11.0))
+            @test_throws DomainError integrate(oitp, 0.0 - eps(0.0), 1.0)
+            @test_throws DomainError integrate(oitp, 0.0, 11.0 + eps(11.0))
+        end
+
+        @testset "bad arguments" begin
+            @test_throws DimensionMismatch Interpolator(oxs, ys)
+            @test_throws DimensionMismatch Interpolator(xs, oys)
+            @test_throws DimensionMismatch Interpolator(oxs, oys, zeros(3))
+            @test_throws DimensionMismatch Interpolator(oxs, oys, zeros(2))
+        end
     end
 
     @testset "regression tests" begin
