@@ -10,16 +10,24 @@ PCHIP interpolation preserves monotonicity (i.e., it will not over- or undershoo
 
 ## Summary
 
+### Load the package
+
+```jl
+using PCHIPInterpolation
+```
+
+You will be prompted to install the package if you do not already have it.
+
 ### Create a PCHIP interpolator
 
 ```jl
-using PCHIPInterpolation # Will ask you to install the package if you don't have it
-
 xs = [0.0,  1.2,  2.0,  5.0, 10.0, 11.0]
 ys = [2.0,  2.1,  1.0,  0.0,  0.0,  3.0]
 
 itp = Interpolator(xs, ys)
 ```
+
+The `xs` and `ys` inputs to the `Interpolator` can be of any subtype of [`AbstractVector`](https://docs.julialang.org/en/v1/base/arrays/#Base.AbstractVector), including the default Julia [`Vector`](https://docs.julialang.org/en/v1/base/arrays/#Base.Vector) (as in the example), custom vector types from other packages, and [ranges](https://docs.julialang.org/en/v1/base/collections/#Base.AbstractRange) (e.g., ``1:2:5``).
 
 ### Evaluate
 
@@ -56,6 +64,6 @@ using ForwardDiff
 dydx = ForwardDiff.derivative(itp, 1.5)
 ```
 
-### Generic cubic Hermite spline
+### General cubic Hermite spline
 
 A different `Interpolator` constructor also exists that takes the derivative values at the interpolation points as a third argument. This method will create a generic [cubic Hermite spline](https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.CubicHermiteSpline.html), which will not preserve monotonicity in general.
