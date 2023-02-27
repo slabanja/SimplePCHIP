@@ -139,6 +139,18 @@ end
             @test !is_piecewise_monotone(itp)
         end
 
+        @testset "continuity" begin
+            xs = [0.0,  1.2,  2.0,  5.0, 10.0, 11.0]
+            ys = [2.0,  2.1,  1.0,  0.0,  0.0,  3.0]
+            itp = @inferred Interpolator(xs, ys)
+
+            for x in xs[begin+1:end-1]
+                y = @inferred itp(x)
+                @test (@inferred itp(x - eps(x))) ≈ y atol=1e-12
+                @test (@inferred itp(x + eps(x))) ≈ y atol=1e-12
+            end
+        end
+
         @testset "bad arguments" begin
             @testset "xs too short" begin
                 @test_throws ArgumentError Interpolator([1.0], [4.0])
@@ -157,7 +169,7 @@ end
             end
         end
     end
-        
+
     @testset "integrate" begin
         @testset "zero" begin
             itp = @inferred Interpolator([1.0, 2.0, 3.0], [0.0, 0.0, 0.0])
@@ -218,6 +230,18 @@ end
             @test (@inferred derivative(itp, 3)) == -1
             @test (@inferred derivative(itp, 4)) == -1
             @test (@inferred derivative(itp, 2.75)) == -1
+        end
+
+        @testset "derivative continuity" begin
+            xs = [0.0,  1.2,  2.0,  5.0, 10.0, 11.0]
+            ys = [2.0,  2.1,  1.0,  0.0,  0.0,  3.0]
+            itp = Interpolator(xs, ys)
+    
+            for x in xs[begin+1:end-1]
+                d = @inferred derivative(itp, x)
+                @test (@inferred derivative(itp, x - eps(x))) ≈ d atol=1e-12
+                @test (@inferred derivative(itp, x + eps(x))) ≈ d atol=1e-12
+            end
         end
 
         @testset "custom derivatives" begin
