@@ -319,11 +319,13 @@ end
             @test_throws DomainError integrate(oitp, 0.0, 11.0 + eps(11.0))
         end
 
-        @testset "bad arguments" begin
+        @testset "incompatible arguments" begin
             @test_throws DimensionMismatch Interpolator(oxs, ys)
             @test_throws DimensionMismatch Interpolator(xs, oys)
-            @test_throws DimensionMismatch Interpolator(oxs, oys, zeros(3))
-            @test_throws DimensionMismatch Interpolator(oxs, oys, zeros(2))
+            @test_throws DimensionMismatch Interpolator(0:lastindex(oxs), oys)
+            @test_throws DimensionMismatch Interpolator(oys, zeros(lastindex(oys)))
+            @test_throws DimensionMismatch Interpolator(oxs, oys, zeros(length(oxs)))
+            @test_throws DimensionMismatch Interpolator(oxs, oys, zeros(lastindex(oxs)))
         end
     end
 
