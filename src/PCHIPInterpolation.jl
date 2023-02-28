@@ -54,9 +54,8 @@ struct Interpolator{Xs,Ys,Ds}
     ds::Ds
 
     function Interpolator(xs::AbstractVector, ys::AbstractVector)
-        length(xs) ≥ 2 || throw(ArgumentError("xs must have at least 2 elements"))
+        length(eachindex(xs, ys)) ≥ 2 || throw(ArgumentError("inputs must have at least 2 elements"))
         _is_strictly_increasing(xs) || throw(ArgumentError("xs must be strictly increasing"))
-        length(xs) == length(ys) || throw(DimensionMismatch("xs and ys must have the same length"))
 
         xs = deepcopy(xs)
         ys = deepcopy(ys)
@@ -66,9 +65,8 @@ struct Interpolator{Xs,Ys,Ds}
     end
 
     function Interpolator(xs::AbstractVector, ys::AbstractVector, ds::AbstractVector)
-        length(xs) ≥ 2 || throw(ArgumentError("xs must have at least 2 elements"))
+        length(eachindex(xs, ys, ds)) ≥ 2 || throw(ArgumentError("inputs must have at least 2 elements"))
         _is_strictly_increasing(xs) || throw(ArgumentError("xs must be strictly increasing"))
-        length(xs) == length(ys) == length(ds) || throw(DimensionMismatch("xs, ys and ds must have the same length"))
 
         xs = deepcopy(xs)
         ys = deepcopy(ys)
