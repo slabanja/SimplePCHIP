@@ -1,0 +1,14 @@
+{
+    "name": "Julia",
+    "image": "mcr.microsoft.com/devcontainers/base",
+    "features": {
+        "ghcr.io/julialang/devcontainer-features/julia": {}
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "github.vscode-github-actions"
+            ]
+        }
+    }
+}
