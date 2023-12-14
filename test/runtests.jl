@@ -43,8 +43,8 @@ end
                 @assert PCHIPInterpolation._is_strictly_increasing(xs)
                 for search in (x -> (@inferred PCHIPInterpolation._findinterval_base(xs, x)),
                             x -> (@inferred PCHIPInterpolation._findinterval_custom(xs, x)))
-                    @test_throws DomainError search(0.0)
-                    @test_throws DomainError search(1.0 - eps(1.0))
+                    @test search(0.0) == 0
+                    @test search(1.0 - eps(1.0)) == 0
                     @test search(1.0) == 1
                     @test search(1.0 + eps(1.0)) == 1
                     @test search(2.0 - eps(2.0)) == 1
@@ -52,13 +52,12 @@ end
                     @test search(2.0 + eps(2.0)) == 2
                     @test search(3.0 - eps(3.0)) == 2
                     @test search(3.0) == 2
-                    @test_throws DomainError search(3.0 + eps(3.0))
-                    @test_throws DomainError search(4.0)
-                    @test search(NaN) in 1:2
+                    @test search(3.0 + eps(3.0)) == 3
+                    @test search(4.0) == 3
                 end
             end
         end
-       
+
         @testset "xs too short" begin
             for xs in (1.0:1.0, collect(1.0:1.0), 1.0:0.0, collect(1.0:0.0))
                 @assert length(xs) < 2
@@ -257,11 +256,11 @@ end
         itp = @inferred Interpolator([1.0, 2.0, 3.0, 4.0], [4.0, 3.0, 2.0, 1.0])
         @test itp(1) == 4
         @test itp(4) == 1
-        @test_throws DomainError itp(1 - 1e-6)
-        @test_throws DomainError itp(4 + 1e-6)
-        @test_throws DomainError integrate(itp, 1 - 1e-6, 4 + 1e-6)
-        @test_throws DomainError integrate(itp, 1 - 1e-6, 3)
-        @test_throws DomainError integrate(itp, 2, 4 + 1e-6)
+        @test isnan(itp(1 - 1e-6))
+        @test isnan(itp(4 + 1e-6))
+        @test isnan(integrate(itp, 1 - 1e-6, 4 + 1e-6))
+        @test isnan(integrate(itp, 1 - 1e-6, 3))
+        @test isnan(integrate(itp, 2, 4 + 1e-6))
     end
 
     @testset "NaN propagation" begin
@@ -313,10 +312,10 @@ end
         @testset "out of domain" begin
             oitp = Interpolator(oxs, oys)
 
-            @test_throws DomainError oitp(0.0 - eps(0.0))
-            @test_throws DomainError oitp(11.0 + eps(11.0))
-            @test_throws DomainError integrate(oitp, 0.0 - eps(0.0), 1.0)
-            @test_throws DomainError integrate(oitp, 0.0, 11.0 + eps(11.0))
+            @test isnan(oitp(0.0 - eps(0.0)))
+            @test isnan(oitp(11.0 + eps(11.0)))
+            @test isnan(integrate(oitp, 0.0 - eps(0.0), 1.0))
+            @test isnan(integrate(oitp, 0.0, 11.0 + eps(11.0)))
         end
 
         @testset "incompatible arguments" begin
