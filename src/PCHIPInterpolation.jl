@@ -78,14 +78,7 @@ end
 
     i = searchsortedlast(xs, x)
 
-    if i < firstindex(xs)
-        throw(DomainError(x, "Below interpolation range"))
-    end
-
-    if i == lastindex(xs)
-        if x > @inbounds xs[i]
-            throw(DomainError(x, "Above interpolation range"))
-        end
+    if i == lastindex(xs) && x == @inbounds xs[i]
         i -= 1 # Treat right endpoint as part of rightmost interval
     end
 
@@ -98,14 +91,14 @@ end
     imin = firstindex(xs)
 
     if x < @inbounds xs[imin]
-        throw(DomainError(x, "Below interpolation range"))
+        return imin - 1
     end
 
     imax = lastindex(xs)
     xmax = @inbounds xs[imax]
 
     if x > xmax
-        throw(DomainError(x, "Above interpolation range"))
+        return imax
     elseif x == xmax
         return imax - 1 # Treat right endpoint as part of rightmost interval
     end
@@ -131,19 +124,49 @@ end
 
 @inline _x(::Interpolator, x) = x
 @inline _x(itp::Interpolator, x, _) = _x(itp, x)
-Base.@propagate_inbounds _x(itp::Interpolator, ::Val{:begin}, i) = itp.xs[i]
-Base.@propagate_inbounds _x(itp::Interpolator, ::Val{:end}, i) = itp.xs[i+1]
+@inline function _x(itp::Interpolator, ::Val{:begin}, i)
+    if i < firstindex(itp.xs) || i >= lastindex(itp.xs)
+        return float(eltype(itp.xs))(NaN)
+    end
+    return @inbounds itp.xs[i]
+end
+@inline function _x(itp::Interpolator, ::Val{:end}, i)
+    if i < firstindex(itp.xs) || i >= lastindex(itp.xs)
+        return float(eltype(itp.xs))(NaN)
+    end
+    return @inbounds itp.xs[i+1]
+end
 
-@inline _evaluate(itp::Interpolator, ::Val{:begin}, i) = itp.ys[i]
-@inline _evaluate(itp::Interpolator, ::Val{:end}, i) = itp.ys[i+1]
+@inline function _evaluate(itp::Interpolator, ::Val{:begin}, i)
+    if i < firstindex(itp.ys) || i >= lastindex(itp.ys)
+        return float(eltype(itp.ys))(NaN)
+    end
+    return @inbounds itp.ys[i]
+end
+@inline function _evaluate(itp::Interpolator, ::Val{:end}, i)
+    if i < firstindex(itp.ys) || i >= lastindex(itp.ys)
+        return float(eltype(itp.ys))(NaN)
+    end
+    return @inbounds itp.ys[i+1]
+end
 
-@inline _derivative(itp::Interpolator, ::Val{:begin}, i) = itp.ds[i]
-@inline _derivative(itp::Interpolator, ::Val{:end}, i) = itp.ds[i+1]
+@inline function _derivative(itp::Interpolator, ::Val{:begin}, i)
+    if i < firstindex(itp.ds) || i >= lastindex(itp.ds)
+        return float(eltype(itp.ds))(NaN)
+    end
+    return @inbounds itp.ds[i]
+end
+@inline function _derivative(itp::Interpolator, ::Val{:end}, i)
+    if i < firstindex(itp.ds) || i >= lastindex(itp.ds)
+        return float(eltype(itp.ds))(NaN)
+    end
+    return @inbounds itp.ds[i+1]
+end
 
 @inline _ϕ(t) = 3t^2 - 2t^3
 @inline _ψ(t) = t^3 - t^2
 
-Base.@propagate_inbounds function _evaluate(itp::Interpolator, x, i)
+function _evaluate(itp::Interpolator, x, i)
     x1 = _x(itp, Val(:begin), i)
     x2 = _x(itp, Val(:end), i)
     h = x2 - x1
@@ -160,18 +183,18 @@ Base.@propagate_inbounds function _evaluate(itp::Interpolator, x, i)
            + d2*h * _ψ((x-x1)/h))
 end
 
-@inline _evaluate(itp::Interpolator, x) = @inbounds _evaluate(itp, x, _findinterval(itp, x))
+@inline _evaluate(itp::Interpolator, x) = _evaluate(itp, x, _findinterval(itp, x))
 
 @inline (itp::Interpolator)(x::Number) = _evaluate(itp, x)
 
 
-Base.@propagate_inbounds function _integrate(itp::Interpolator, a, b, i)
+@inline function _integrate(itp::Interpolator, a, b, i)
     a_ = _x(itp, a, i)
     b_ = _x(itp, b, i)
     return (b_ - a_)/6*(_evaluate(itp, a, i) + 4*_evaluate(itp, (a_ + b_)/2, i) + _evaluate(itp, b, i)) # Simpson's rule
 end
 
-Base.@propagate_inbounds function _integrate(itp::Interpolator, a, b, i, j)
+@inline function _integrate(itp::Interpolator, a, b, i, j)
     if i == j
         return _integrate(itp, a, b, i)
     end
@@ -190,7 +213,7 @@ end
         return -_integrate(itp, b, a)
     end
 
-    return @inbounds _integrate(itp, a, b, _findinterval(itp, a), _findinterval(itp, b))
+    return _integrate(itp, a, b, _findinterval(itp, a), _findinterval(itp, b))
 end
 
 @inline integrate(itp::Interpolator, a::Number, b::Number) = _integrate(itp, a, b)

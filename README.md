@@ -37,8 +37,6 @@ y = itp(1.5) # At a single point
 ys = itp.(xs) # At multiple points
 ```
 
-Attempts to evaluate outside the interpolation range will throw a [`DomainError`](https://docs.julialang.org/en/v1/base/base/#Core.DomainError) (i.e., the interpolator will not perform extrapolation).
-
 ### Plot (with [Plots](https://github.com/JuliaPlots/Plots.jl))
 
 ```jl
