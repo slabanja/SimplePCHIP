@@ -57,8 +57,6 @@ struct Interpolator{Xs,Ys,Ds}
         length(eachindex(xs, ys)) ≥ 2 || throw(ArgumentError("inputs must have at least 2 elements"))
         _is_strictly_increasing(xs) || throw(ArgumentError("xs must be strictly increasing"))
 
-        xs = deepcopy(xs)
-        ys = deepcopy(ys)
         ds = _pchip_ds_scipy(xs, ys)
 
         new{typeof(xs),typeof(ys),typeof(ds)}(xs, ys, ds)
@@ -67,10 +65,6 @@ struct Interpolator{Xs,Ys,Ds}
     function Interpolator(xs::AbstractVector, ys::AbstractVector, ds::AbstractVector)
         length(eachindex(xs, ys, ds)) ≥ 2 || throw(ArgumentError("inputs must have at least 2 elements"))
         _is_strictly_increasing(xs) || throw(ArgumentError("xs must be strictly increasing"))
-
-        xs = deepcopy(xs)
-        ys = deepcopy(ys)
-        ds = deepcopy(ds)
 
         new{typeof(xs),typeof(ys),typeof(ds)}(xs, ys, ds)
     end

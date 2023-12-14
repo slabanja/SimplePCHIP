@@ -343,17 +343,6 @@ end
             @test itp(1) == 1
         end
 
-        @testset "gh-11" begin
-            # Regression test for https://github.com/gerlero/PCHIPInterpolation.jl/issues/11
-            v = [1, 2, 3]
-            itp = Interpolator(v, v)
-            xs = copy(itp.xs)
-            ys = copy(itp.ys)
-            v .= -1
-            @test itp.xs == xs
-            @test itp.ys == ys
-        end
-
         @testset "gh-31" begin
             # Test correctness of _pchip_ds_scipy implementation following https://github.com/gerlero/PCHIPInterpolation.jl/issues/31
             # Tests that the interpolated values are the same as SciPy
